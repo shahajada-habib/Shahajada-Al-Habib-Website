@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<section class="hero">
+  <div class="container hero__inner">
+    <div class="hero__text reveal">
+      <h1>শাহজাদা আল হাবীব</h1>
+      <p class="hero__tagline">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
+      <p class="hero__book">প্রকাশিত বই: <strong>"অশ্রুচুক্তি"</strong> — ২০২৩, অমর একুশে বইমেলা।</p>
+      <blockquote class="hero__quote">
+        "শাহজাদা আল হাবীবের <strong>অশ্রুচুক্তি</strong> (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."
+        <cite>— মহীবুল আজিজ, অধ্যাপক, বাংলা বিভাগ, চট্টগ্রাম বিশ্ববিদ্যালয়</cite>
+      </blockquote>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="/about">আমার সম্পর্কে</a>
+        <a class="btn btn--outline" href="/gallery">গ্যালারি দেখুন</a>
+      </div>
+    </div>
+    <div class="hero__photo reveal">
+      <img src="/assets/ShahajadaProfile800800.jpg" alt="শাহজাদা আল হাবীব" />
+    </div>
+  </div>
+</section>
+
+<main class="container">
+
+  <section th:if="${!featured.isEmpty()}" style="padding-bottom: 0;">
+    <h2 class="section-title">নির্বাচিত লেখা</h2>
+    <div class="featured-grid">
+      <a class="featured-main reveal" th:href="@{'/article/' + ${featured[0].slug}}">
+        <img th:src="${featured[0].imageUrl}" th:if="${!#strings.isEmpty(featured[0].imageUrl)}" th:alt="${featured[0].imageAlt ?: featured[0].title}" />
+        <div class="featured-main__overlay">
+          <div>
+            <span class="category-badge" th:if="${!#strings.isEmpty(featured[0].category)}" th:text="${featured[0].category}">Category</span>
+            <h2 th:text="${featured[0].title}">Title</h2>
+          </div>
+        </div>
+      </a>
+      <div class="featured-side">
+        <a class="featured-side-item reveal" th:each="item, iter : ${featured}" th:if="${iter.index > 0}" th:href="@{'/article/' + ${item.slug}}">
+          <img th:src="${item.imageUrl}" th:if="${!#strings.isEmpty(item.imageUrl)}" th:alt="${item.imageAlt ?: item.title}" />
+          <div>
+            <span class="category-badge" th:if="${!#strings.isEmpty(item.category)}" th:text="${item.category}">Category</span>
+            <h3 th:text="${item.title}">Title</h3>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">সাম্প্রতিক লেখা</h2>
+    <div class="article-grid" th:if="${!latest.isEmpty()}">
+      <a class="article-card reveal" th:each="item : ${latest}" th:href="@{'/article/' + ${item.slug}}">
+        <div class="article-card__image">
+          <img th:src="${item.imageUrl}" th:if="${!#strings.isEmpty(item.imageUrl)}" th:alt="${item.imageAlt ?: item.title}" />
+        </div>
+        <div class="article-card__body">
+          <span class="article-card__category" th:if="${!#strings.isEmpty(item.category)}" th:text="${item.category}">Category</span>
+          <h3 class="article-card__title" th:text="${item.title}">Title</h3>
+          <span class="article-card__meta" th:text="${item.publishDate}">Date</span>
+        </div>
+      </a>
+    </div>
+    <div class="empty-state" th:if="${latest.isEmpty()}">
+      এখনো কোনো লেখা প্রকাশিত হয়নি — <a href="/admin">/admin</a> থেকে প্রথম লেখাটি যোগ করুন।
+    </div>
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<script src="/js/reveal.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <h1 class="section-title">গ্যালারি</h1>
+  <p style="color:var(--text-muted); margin-top:-10px;">বইমেলা, ভ্রমণ ও ব্যক্তিগত স্মৃতির কিছু ঝলক</p>
+
+  <div class="gallery-grid" th:if="${!photos.isEmpty()}">
+    <div class="gallery-item reveal" th:each="photo : ${photos}">
+      <img th:src="${photo.fileUrl}" th:alt="${!#strings.isEmpty(photo.caption)} ? ${photo.caption} : ${photo.fileName}" loading="lazy" />
+      <span th:if="${!#strings.isEmpty(photo.caption)}" th:text="${photo.caption}">Caption</span>
+    </div>
+  </div>
+  <div class="empty-state" th:if="${photos.isEmpty()}">
+    এখনো কোনো ছবি যোগ করা হয়নি — <a href="/admin">/admin</a> এর মিডিয়া লাইব্রেরি থেকে ছবি "গ্যালারিতে দেখান" করুন।
+  </div>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<script src="/js/reveal.js"></script>
+</body>
+</html>

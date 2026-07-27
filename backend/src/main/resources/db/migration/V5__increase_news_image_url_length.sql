@@ -1,0 +1,1 @@
+ALTER TABLE news MODIFY image_url VARCHAR(500);

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <div class="author-header" style="margin-bottom:36px;">
+    <img class="author-avatar" src="/assets/ShahajadaProfile800800.jpg" alt="শাহজাদা আল হাবীব" style="width:140px;height:140px;">
+    <div>
+      <h1 style="font-size:1.7rem;">শাহজাদা আল হাবীব</h1>
+      <p style="font-size:1.05rem; margin-top:4px;">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
+    </div>
+  </div>
+
+  <div class="article-body" style="margin-bottom:32px;">
+    <p>আমি শাহজাদা আল হাবীব। আমার প্রথম প্রকাশিত কাব্যগ্রন্থ <strong>"অশ্রুচুক্তি"</strong> (২০২৩), অমর একুশে বইমেলায় প্রকাশিত। ফেসবুকসহ বিভিন্ন সামাজিক প্ল্যাটফর্মে সমসাময়িক বিষয় নিয়ে নিয়মিত লিখি। লেখালেখির বাইরে সাইক্লিং, ফটোগ্রাফি ও দেশের আনাচে কানাচে ভ্রমণ করা আমার শখ।</p>
+    <p>কিশোরগঞ্জ সরকারি বালক উচ্চ বিদ্যালয় থেকে মাধ্যমিক, গুরুদয়াল সরকারি কলেজ থেকে বিজ্ঞান বিভাগে উচ্চ-মাধ্যমিক এবং চট্টগ্রাম বিশ্ববিদ্যালয় থেকে স্নাতক সম্পন্ন করেছি।</p>
+  </div>
+
+  <div class="sidebar-box" style="max-width:600px; margin-bottom:32px;">
+    <h3>প্রকাশিত গ্রন্থ: "অশ্রুচুক্তি" (২০২৩)</h3>
+    <p style="margin-top:10px; font-style:italic; color:var(--text-muted);">
+      "শাহজাদা আল হাবীবের অশ্রুচুক্তি (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."
+      <br><br>— মহীবুল আজিজ, অধ্যাপক, বাংলা বিভাগ, চট্টগ্রাম বিশ্ববিদ্যালয়
+    </p>
+  </div>
+
+  <a href="/assets/cv.pdf" class="btn" style="background:var(--primary); color:#fff; padding:11px 22px; border-radius:8px; font-weight:600; display:inline-block;" download>সিভি ডাউনলোড করুন</a>
+
+  <div class="social-links" style="margin-top:32px; justify-content:flex-start;">
+    <a href="https://www.facebook.com/shahajada.habib" target="_blank" rel="noopener" data-label="Facebook" style="background:var(--dark);">FB</a>
+    <a href="https://www.instagram.com/pranto.habib" target="_blank" rel="noopener" data-label="Instagram" style="background:var(--dark);">IG</a>
+    <a href="https://www.youtube.com/@shahajadaalhabib" target="_blank" rel="noopener" data-label="YouTube" style="background:var(--dark);">YT</a>
+  </div>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

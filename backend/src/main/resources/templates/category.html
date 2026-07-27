@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <h1 class="section-title" th:text="${category.name}">Category</h1>
+
+  <div class="article-grid" th:if="${!articles.isEmpty()}">
+    <a class="article-card" th:each="item : ${articles}" th:href="@{'/article/' + ${item.slug}}">
+      <div class="article-card__image">
+        <img th:src="${item.imageUrl}" th:if="${!#strings.isEmpty(item.imageUrl)}" th:alt="${item.imageAlt ?: item.title}" />
+      </div>
+      <div class="article-card__body">
+        <h3 class="article-card__title" th:text="${item.title}">Title</h3>
+        <span class="article-card__meta" th:text="${item.publishDate}">Date</span>
+      </div>
+    </a>
+  </div>
+  <div class="empty-state" th:if="${articles.isEmpty()}">এই ক্যাটাগরিতে এখনো কোনো লেখা নেই।</div>
+
+  <nav class="pagination" th:if="${totalPages > 1}">
+    <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+       th:href="@{'/category/' + ${category.slug}(page=${i})}"
+       th:text="${i + 1}"
+       th:classappend="${i == currentPage} ? 'active'">1</a>
+  </nav>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

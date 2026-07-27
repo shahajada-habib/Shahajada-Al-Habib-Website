@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+
+  <article>
+    <div class="article-header">
+      <span class="category-badge" th:if="${!#strings.isEmpty(article.category)}" th:text="${article.category}">Category</span>
+      <h1 th:text="${article.title}">Title</h1>
+      <p class="article-subtitle" th:if="${!#strings.isEmpty(article.subtitle)}" th:text="${article.subtitle}">Subtitle</p>
+      <div class="article-meta">
+        <span>শাহজাদা আল হাবীব</span>
+        <span th:text="${article.publishDate}">Date</span>
+        <span th:text="${article.viewCount} + ' বার পঠিত'">0 views</span>
+        <span th:if="${!#strings.isEmpty(article.source)}" th:text="'সোর্স: ' + ${article.source}">Source</span>
+      </div>
+    </div>
+
+    <div class="article-hero-image" th:if="${!#strings.isEmpty(article.imageUrl)}">
+      <img th:src="${article.imageUrl}" th:alt="${article.imageAlt ?: article.title}" />
+    </div>
+    <p class="article-image-caption" th:if="${!#strings.isEmpty(article.imageCaption)}" th:text="${article.imageCaption}">Caption</p>
+
+    <div class="article-body" th:utext="${article.content}">Article content</div>
+
+    <div class="video-embed" th:if="${!#strings.isEmpty(article.videoUrl)}">
+      <div id="video-container"></div>
+    </div>
+
+    <div class="article-tags" th:if="${!article.tagNames.isEmpty()}">
+      <span class="tag-pill" th:each="tag : ${article.tagNames}" th:text="'#' + ${tag}">#tag</span>
+    </div>
+
+    <div class="reactions" th:attr="data-article-id=${article.id}">
+      <button class="reaction-btn" id="like-btn" type="button">👍 <span id="like-count" th:text="${article.likeCount}">0</span></button>
+      <button class="reaction-btn" id="dislike-btn" type="button">👎 <span id="dislike-count" th:text="${article.dislikeCount}">0</span></button>
+    </div>
+  </article>
+
+  <section class="related-section" th:if="${!related.isEmpty()}">
+    <h2 class="section-title">আরও লেখা</h2>
+    <div class="article-grid">
+      <a class="article-card" th:each="item : ${related}" th:href="@{'/article/' + ${item.slug}}">
+        <div class="article-card__image">
+          <img th:src="${item.imageUrl}" th:if="${!#strings.isEmpty(item.imageUrl)}" th:alt="${item.imageAlt ?: item.title}" />
+        </div>
+        <div class="article-card__body">
+          <h3 class="article-card__title" th:text="${item.title}">Title</h3>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="comments-section" id="comments">
+    <h2 class="section-title" th:text="'মন্তব্য (' + ${comments.size()} + ')'">Comments</h2>
+
+    <p class="comment-success" th:if="${commentSubmitted}">ধন্যবাদ — আপনার মন্তব্যটি জমা হয়েছে, অনুমোদনের অপেক্ষায় আছে।</p>
+
+    <div th:each="comment : ${comments}" class="comment-card">
+      <span class="comment-card__author" th:text="${comment.author}">Author</span>
+      <span class="comment-card__date" th:text="${comment.createdAt}">Date</span>
+      <p class="comment-card__body" th:text="${comment.content}">Comment text</p>
+    </div>
+    <p th:if="${comments.isEmpty()}" style="color:var(--text-muted)">এখনো কোনো মন্তব্য নেই — প্রথম মন্তব্যটি করুন।</p>
+
+    <form class="comment-form" th:action="@{'/article/' + ${article.slug} + '/comments'}" method="post">
+      <input type="text" name="author" placeholder="আপনার নাম" required maxlength="120" />
+      <textarea name="content" rows="4" placeholder="মন্তব্য লিখুন..." required maxlength="2000"></textarea>
+      <button type="submit">মন্তব্য পোস্ট করুন</button>
+    </form>
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<script th:inline="javascript">
+  (function () {
+    const articleId = /*[[${article.id}]]*/ 0;
+    const videoUrl = /*[[${article.videoUrl}]]*/ null;
+    const likeBtn = document.getElementById('like-btn');
+    const dislikeBtn = document.getElementById('dislike-btn');
+
+    function react(type) {
+      fetch('/api/public/news/' + articleId + '/reaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reactionType: type })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById('like-count').textContent = data.likeCount;
+          document.getElementById('dislike-count').textContent = data.dislikeCount;
+        })
+        .catch(() => {});
+    }
+
+    likeBtn.addEventListener('click', () => react('like'));
+    dislikeBtn.addEventListener('click', () => react('dislike'));
+
+    function youtubeEmbedUrl(url) {
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+      return match ? 'https://www.youtube.com/embed/' + match[1] : null;
+    }
+
+    const container = document.getElementById('video-container');
+    if (container && videoUrl) {
+      const embedUrl = youtubeEmbedUrl(videoUrl);
+      if (embedUrl) {
+        container.innerHTML = '<iframe src="' + embedUrl + '" title="Video" frameborder="0" ' +
+          'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      } else {
+        container.innerHTML = '<a href="' + videoUrl + '" target="_blank" rel="noopener">ভিডিও দেখুন</a>';
+      }
+    }
+  })();
+</script>
+</body>
+</html>

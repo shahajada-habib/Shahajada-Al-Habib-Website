@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!--/* Reusable <head> fragment: every page calls this with its own title/description/image/url
+     so search engines and social-share bots get correct per-page metadata server-rendered. */-->
+<head th:fragment="head(title, description, image, url)">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${title} + ' | শাহজাদা আল হাবীব'">শাহজাদা আল হাবীব</title>
+  <meta name="description" th:content="${description}" />
+  <link rel="canonical" th:href="@{${url}}" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" th:content="${title}" />
+  <meta property="og:description" th:content="${description}" />
+  <meta property="og:url" th:content="@{${url}}" />
+  <meta property="og:image" th:if="${!#strings.isEmpty(image)}" th:content="${image}" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="alternate" type="application/rss+xml" title="শাহজাদা আল হাবীব RSS" href="/rss.xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div th:fragment="header">
+  <header class="site-header">
+    <div class="container site-header__top">
+      <a href="/" class="logo">শাহজাদা আল হাবীব</a>
+      <form class="search-form" action="/search" method="get">
+        <input type="text" name="q" placeholder="লেখা খুঁজুন..." />
+        <button type="submit">খুঁজুন</button>
+      </form>
+    </div>
+    <nav class="site-nav">
+      <div class="container">
+        <ul>
+          <li><a href="/">হোম</a></li>
+          <li th:each="cat : ${navCategories}" th:if="${cat.slug != 'gallery'}">
+            <a th:href="@{'/category/' + ${cat.slug}}" th:text="${cat.name}">Category</a>
+          </li>
+          <li><a href="/gallery">গ্যালারি</a></li>
+          <li><a href="/about">আমার সম্পর্কে</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<footer class="site-footer" th:fragment="footer">
+  <div class="container">
+    <div>
+      <a href="/" class="logo" style="font-size:1.1rem;">শাহজাদা আল হাবীব</a>
+      <p class="footer-note">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
+    </div>
+    <div class="social-links">
+      <a href="https://www.facebook.com/shahajada.habib" target="_blank" rel="noopener" data-label="Facebook">FB</a>
+      <a href="https://www.instagram.com/pranto.habib" target="_blank" rel="noopener" data-label="Instagram">IG</a>
+      <a href="https://www.youtube.com/@shahajadaalhabib" target="_blank" rel="noopener" data-label="YouTube">YT</a>
+    </div>
+    <p class="footer-note">&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> শাহজাদা আল হাবীব</p>
+  </div>
+</footer>
+
+</body>
+</html>
