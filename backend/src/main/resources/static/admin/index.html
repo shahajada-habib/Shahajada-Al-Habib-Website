@@ -48,6 +48,7 @@
       <button class="tab-btn" data-tab="comments">মন্তব্য</button>
       <button class="tab-btn" data-tab="categories">ক্যাটাগরি</button>
       <button class="tab-btn" data-tab="media">মিডিয়া লাইব্রেরি</button>
+      <button class="tab-btn" data-tab="settings">সেটিংস</button>
     </div>
 
     <!-- Dashboard -->
@@ -192,6 +193,30 @@
       </div>
       <p class="form-error" id="media-form-error"></p>
       <div class="media-grid" id="media-grid"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="tab-panel" id="settings-panel">
+      <div class="admin-panel-head">
+        <h2>পাসওয়ার্ড পরিবর্তন করুন</h2>
+      </div>
+      <form id="change-password-form" class="form-card" style="max-width:420px;">
+        <div class="form-group">
+          <label>বর্তমান পাসওয়ার্ড</label>
+          <input type="password" name="currentPassword" required>
+        </div>
+        <div class="form-group">
+          <label>নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)</label>
+          <input type="password" name="newPassword" required minlength="8">
+        </div>
+        <div class="form-group">
+          <label>নতুন পাসওয়ার্ড আবার লিখুন</label>
+          <input type="password" name="confirmPassword" required minlength="8">
+        </div>
+        <button type="submit" class="btn btn--primary">পাসওয়ার্ড পরিবর্তন করুন</button>
+        <p class="form-error" id="change-password-error"></p>
+        <p class="form-success" id="change-password-success" style="display:none; color:#067647;">পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে।</p>
+      </form>
     </div>
 
   </div>

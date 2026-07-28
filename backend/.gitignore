@@ -27,3 +27,6 @@ uploads/
 
 ### Logs ###
 *.log
+
+### Local secrets (real DB credentials -- never commit) ###
+secrets.properties

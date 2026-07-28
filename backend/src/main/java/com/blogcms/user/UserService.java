@@ -91,6 +91,19 @@ public class UserService {
         return toResponse(userRepository.save(user));
     }
 
+    public void changeMyPassword(String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(currentUserService.username())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+
+        if (!passwordEncoder.matches(currentPassword == null ? "" : currentPassword, user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "current password is incorrect");
+        }
+
+        String validatedNewPassword = inputValidator.password(newPassword);
+        user.setPassword(passwordEncoder.encode(validatedNewPassword));
+        userRepository.save(user);
+    }
+
     public UserResponseDto getUserProfile(String username) {
         return userRepository.findByUsernameAndPublicProfileTrue(username.toLowerCase())
                 .map(this::toResponse)

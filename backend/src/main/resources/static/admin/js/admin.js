@@ -427,6 +427,36 @@ document.getElementById("pick-image-btn").addEventListener("click", () => {
   document.querySelector('[data-tab="media"]').click();
 });
 
+// ---- Change password ----
+document.getElementById("change-password-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const errorEl = document.getElementById("change-password-error");
+  const successEl = document.getElementById("change-password-success");
+  errorEl.textContent = "";
+  successEl.style.display = "none";
+
+  const currentPassword = form.currentPassword.value;
+  const newPassword = form.newPassword.value;
+  const confirmPassword = form.confirmPassword.value;
+
+  if (newPassword !== confirmPassword) {
+    errorEl.textContent = "নতুন পাসওয়ার্ড দুটো মিলছে না।";
+    return;
+  }
+
+  try {
+    await apiRequest("/api/admin/profile/password", {
+      method: "PATCH",
+      body: { currentPassword, newPassword },
+    });
+    successEl.style.display = "block";
+    form.reset();
+  } catch (err) {
+    errorEl.textContent = err.message || "পাসওয়ার্ড পরিবর্তন করা যায়নি।";
+  }
+});
+
 if (isLoggedIn()) {
   showDashboard();
 }
