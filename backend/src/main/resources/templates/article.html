@@ -13,7 +13,7 @@
       <p class="article-subtitle" th:if="${!#strings.isEmpty(article.subtitle)}" th:text="${article.subtitle}">Subtitle</p>
       <div class="article-meta">
         <span>শাহজাদা আল হাবীব</span>
-        <span th:text="${article.publishDate}">Date</span>
+        <span th:text="${article.publishDateDisplay}">Date</span>
         <span th:text="${article.viewCount} + ' বার পঠিত'">0 views</span>
         <span th:if="${!#strings.isEmpty(article.source)}" th:text="'সোর্স: ' + ${article.source}">Source</span>
       </div>
@@ -109,7 +109,7 @@
     if (container && videoUrl) {
       const embedUrl = youtubeEmbedUrl(videoUrl);
       if (embedUrl) {
-        container.innerHTML = '<iframe src="' + embedUrl + '" title="Video" frameborder="0" ' +
+        container.innerHTML = '<iframe src="' + embedUrl + '" title="ভিডিও" frameborder="0" ' +
           'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
       } else {
         container.innerHTML = '<a href="' + videoUrl + '" target="_blank" rel="noopener">ভিডিও দেখুন</a>';

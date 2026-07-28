@@ -62,7 +62,7 @@
         <div class="article-card__body">
           <span class="article-card__category" th:if="${!#strings.isEmpty(item.category)}" th:text="${item.category}">Category</span>
           <h3 class="article-card__title" th:text="${item.title}">Title</h3>
-          <span class="article-card__meta" th:text="${item.publishDate}">Date</span>
+          <span class="article-card__meta" th:text="${item.publishDateDisplay}">Date</span>
         </div>
       </a>
     </div>

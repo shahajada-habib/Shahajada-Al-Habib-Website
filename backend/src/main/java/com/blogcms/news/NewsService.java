@@ -259,6 +259,7 @@ public class NewsService {
         response.setFeatured(news.isFeatured());
         response.setScheduledAt(formatDateTime(news.getScheduledAt()));
         response.setPublishDate(formatDateTime(news.getPublishDate()));
+        response.setPublishDateDisplay(formatDisplayDate(news.getPublishDate()));
         response.setViewCount(news.getViewCount());
         long[] counts = reactionCounts == null ? null : reactionCounts.get(news.getId());
         response.setLikeCount(counts == null ? reactionRepository.countByNewsIdAndReactionType(news.getId(), ReactionService.LIKE) : counts[0]);
@@ -472,6 +473,18 @@ public class NewsService {
 
     private String formatDateTime(LocalDateTime value) {
         return value == null ? "" : value.toString();
+    }
+
+    private static final String[] BENGALI_MONTHS = {
+            "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+            "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
+    };
+
+    private String formatDisplayDate(LocalDateTime value) {
+        if (value == null) {
+            return "";
+        }
+        return value.getDayOfMonth() + " " + BENGALI_MONTHS[value.getMonthValue() - 1] + ", " + value.getYear();
     }
 
     private List<News> visiblePublishedNews() {

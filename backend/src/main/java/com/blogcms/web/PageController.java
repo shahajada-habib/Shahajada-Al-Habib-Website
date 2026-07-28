@@ -59,7 +59,10 @@ public class PageController {
     public String home(Model model) {
         PageResponse<NewsResponseDto> latest = pageResponse(newsService.getPublishedNews(0, PAGE_SIZE));
 
-        model.addAttribute("featured", latest.content().stream().filter(NewsResponseDto::isFeatured).limit(4).toList());
+        List<NewsResponseDto> featured = latest.content().stream().filter(NewsResponseDto::isFeatured).limit(4).toList();
+        // Hide the Featured section when it would just duplicate the Latest section below it
+        // (e.g. with only one published article total).
+        model.addAttribute("featured", featured.size() < latest.content().size() ? featured : List.of());
         model.addAttribute("latest", latest.content());
         model.addAttribute("pageTitle", "হোম");
         model.addAttribute("pageDescription", "শাহজাদা আল হাবীবের কবিতা, গল্প ও জার্নাল।");

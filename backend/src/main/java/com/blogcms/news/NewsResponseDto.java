@@ -30,6 +30,7 @@ public class NewsResponseDto {
     private boolean featured;
     private String scheduledAt;
     private String publishDate;
+    private String publishDateDisplay;
     private long viewCount;
     private long likeCount;
     private long dislikeCount;
@@ -234,6 +235,14 @@ public class NewsResponseDto {
 
     public void setPublishDate(String publishDate) {
         this.publishDate = publishDate;
+    }
+
+    public String getPublishDateDisplay() {
+        return publishDateDisplay;
+    }
+
+    public void setPublishDateDisplay(String publishDateDisplay) {
+        this.publishDateDisplay = publishDateDisplay;
     }
 
     public long getViewCount() {
