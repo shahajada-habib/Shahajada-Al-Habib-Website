@@ -1,0 +1,10 @@
+target/
+uploads/
+secrets.properties
+*.log
+.git
+.idea
+.vscode
+.classpath
+.project
+.settings
