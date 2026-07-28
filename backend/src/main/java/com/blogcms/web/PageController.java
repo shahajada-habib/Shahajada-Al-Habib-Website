@@ -1,6 +1,7 @@
 package com.blogcms.web;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import com.blogcms.category.Category;
@@ -13,6 +14,7 @@ import com.blogcms.media.MediaAssetService;
 import com.blogcms.news.NewsResponseDto;
 import com.blogcms.news.NewsService;
 
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,16 +39,23 @@ public class PageController {
     private final CategoryRepository categoryRepository;
     private final CommentService commentService;
     private final MediaAssetService mediaAssetService;
+    private final MessageSource messageSource;
 
     public PageController(
             NewsService newsService,
             CategoryRepository categoryRepository,
             CommentService commentService,
-            MediaAssetService mediaAssetService) {
+            MediaAssetService mediaAssetService,
+            MessageSource messageSource) {
         this.newsService = newsService;
         this.categoryRepository = categoryRepository;
         this.commentService = commentService;
         this.mediaAssetService = mediaAssetService;
+        this.messageSource = messageSource;
+    }
+
+    private String msg(String key, Locale locale, Object... args) {
+        return messageSource.getMessage(key, args, locale);
     }
 
     @ModelAttribute
@@ -56,7 +65,7 @@ public class PageController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String home(Model model, Locale locale) {
         PageResponse<NewsResponseDto> latest = pageResponse(newsService.getPublishedNews(0, PAGE_SIZE));
 
         List<NewsResponseDto> featured = latest.content().stream().filter(NewsResponseDto::isFeatured).limit(4).toList();
@@ -64,8 +73,8 @@ public class PageController {
         // (e.g. with only one published article total).
         model.addAttribute("featured", featured.size() < latest.content().size() ? featured : List.of());
         model.addAttribute("latest", latest.content());
-        model.addAttribute("pageTitle", "হোম");
-        model.addAttribute("pageDescription", "শাহজাদা আল হাবীবের কবিতা, গল্প ও জার্নাল।");
+        model.addAttribute("pageTitle", msg("nav.home", locale));
+        model.addAttribute("pageDescription", msg("page.home.description", locale));
         model.addAttribute("pageUrl", "/");
         return "index";
     }
@@ -128,32 +137,32 @@ public class PageController {
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam(required = false, defaultValue = "") String q, @RequestParam(defaultValue = "0") int page, Model model) {
+    public String search(@RequestParam(required = false, defaultValue = "") String q, @RequestParam(defaultValue = "0") int page, Model model, Locale locale) {
         PageResponse<NewsResponseDto> result = newsService.searchPublishedNews(q, page, PAGE_SIZE);
 
         model.addAttribute("query", q);
         model.addAttribute("articles", result.content());
         model.addAttribute("currentPage", result.page());
         model.addAttribute("totalPages", result.totalPages());
-        model.addAttribute("pageTitle", q.isBlank() ? "খুঁজুন" : "অনুসন্ধান: " + q);
-        model.addAttribute("pageDescription", "লেখা খুঁজুন" + (q.isBlank() ? "" : " \"" + q + "\" এর জন্য"));
+        model.addAttribute("pageTitle", q.isBlank() ? msg("search.allArticles", locale) : msg("search.resultsFor", locale, q));
+        model.addAttribute("pageDescription", q.isBlank() ? msg("page.search.description", locale) : msg("page.search.descriptionQuery", locale, q));
         model.addAttribute("pageUrl", "/search");
         return "search";
     }
 
     @GetMapping("/about")
-    public String about(Model model) {
-        model.addAttribute("pageTitle", "আমার সম্পর্কে");
-        model.addAttribute("pageDescription", "শাহজাদা আল হাবীব — লেখক, কবি ও ভ্রমণপ্রেমী। প্রথম কাব্যগ্রন্থ: অশ্রুচুক্তি (২০২৩)।");
+    public String about(Model model, Locale locale) {
+        model.addAttribute("pageTitle", msg("nav.about", locale));
+        model.addAttribute("pageDescription", msg("page.about.description", locale));
         model.addAttribute("pageUrl", "/about");
         return "about";
     }
 
     @GetMapping("/gallery")
-    public String gallery(Model model) {
+    public String gallery(Model model, Locale locale) {
         model.addAttribute("photos", mediaAssetService.getGallery());
-        model.addAttribute("pageTitle", "গ্যালারি");
-        model.addAttribute("pageDescription", "বইমেলা, ভ্রমণ ও ব্যক্তিগত স্মৃতির কিছু ঝলক।");
+        model.addAttribute("pageTitle", msg("gallery.title", locale));
+        model.addAttribute("pageDescription", msg("gallery.subtitle", locale));
         model.addAttribute("pageUrl", "/gallery");
         return "gallery";
     }

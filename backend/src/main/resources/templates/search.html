@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <main class="container">
-  <h1 class="section-title" th:text="${query.isEmpty()} ? 'সব লেখা' : ('অনুসন্ধান ফলাফল: &quot;' + ${query} + '&quot;')">Search</h1>
+  <h1 class="section-title" th:text="${query.isEmpty()} ? #{search.allArticles} : #{search.resultsFor(${query})}">Search</h1>
 
   <div class="article-grid" th:if="${!articles.isEmpty()}">
     <a class="article-card" th:each="item : ${articles}" th:href="@{'/article/' + ${item.slug}}">
@@ -19,7 +19,7 @@
       </div>
     </a>
   </div>
-  <div class="empty-state" th:if="${articles.isEmpty()}">কোনো লেখা খুঁজে পাওয়া যায়নি।</div>
+  <div class="empty-state" th:if="${articles.isEmpty()}" th:text="#{search.noResults}">কোনো লেখা খুঁজে পাওয়া যায়নি।</div>
 
   <nav class="pagination" th:if="${totalPages > 1}">
     <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"

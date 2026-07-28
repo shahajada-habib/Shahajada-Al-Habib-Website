@@ -14,8 +14,8 @@
       <div class="article-meta">
         <span>শাহজাদা আল হাবীব</span>
         <span th:text="${article.publishDateDisplay}">Date</span>
-        <span th:text="${article.viewCount} + ' বার পঠিত'">0 views</span>
-        <span th:if="${!#strings.isEmpty(article.source)}" th:text="'সোর্স: ' + ${article.source}">Source</span>
+        <span th:text="${article.viewCount} + ' ' + #{article.views}">0 views</span>
+        <span th:if="${!#strings.isEmpty(article.source)}" th:text="#{article.source} + ' ' + ${article.source}">Source</span>
       </div>
     </div>
 
@@ -41,7 +41,7 @@
   </article>
 
   <section class="related-section" th:if="${!related.isEmpty()}">
-    <h2 class="section-title">আরও লেখা</h2>
+    <h2 class="section-title" th:text="#{article.related}">আরও লেখা</h2>
     <div class="article-grid">
       <a class="article-card" th:each="item : ${related}" th:href="@{'/article/' + ${item.slug}}">
         <div class="article-card__image">
@@ -55,21 +55,21 @@
   </section>
 
   <section class="comments-section" id="comments">
-    <h2 class="section-title" th:text="'মন্তব্য (' + ${comments.size()} + ')'">Comments</h2>
+    <h2 class="section-title" th:text="#{comments.heading(${comments.size()})}">Comments</h2>
 
-    <p class="comment-success" th:if="${commentSubmitted}">ধন্যবাদ — আপনার মন্তব্যটি জমা হয়েছে, অনুমোদনের অপেক্ষায় আছে।</p>
+    <p class="comment-success" th:if="${commentSubmitted}" th:text="#{comments.success}">ধন্যবাদ — আপনার মন্তব্যটি জমা হয়েছে, অনুমোদনের অপেক্ষায় আছে।</p>
 
     <div th:each="comment : ${comments}" class="comment-card">
       <span class="comment-card__author" th:text="${comment.author}">Author</span>
       <span class="comment-card__date" th:text="${comment.createdAt}">Date</span>
       <p class="comment-card__body" th:text="${comment.content}">Comment text</p>
     </div>
-    <p th:if="${comments.isEmpty()}" style="color:var(--text-muted)">এখনো কোনো মন্তব্য নেই — প্রথম মন্তব্যটি করুন।</p>
+    <p th:if="${comments.isEmpty()}" style="color:var(--text-muted)" th:text="#{comments.empty}">এখনো কোনো মন্তব্য নেই — প্রথম মন্তব্যটি করুন।</p>
 
     <form class="comment-form" th:action="@{'/article/' + ${article.slug} + '/comments'}" method="post">
-      <input type="text" name="author" placeholder="আপনার নাম" required maxlength="120" />
-      <textarea name="content" rows="4" placeholder="মন্তব্য লিখুন..." required maxlength="2000"></textarea>
-      <button type="submit">মন্তব্য পোস্ট করুন</button>
+      <input type="text" name="author" th:placeholder="#{comments.namePlaceholder}" required maxlength="120" />
+      <textarea name="content" rows="4" th:placeholder="#{comments.contentPlaceholder}" required maxlength="2000"></textarea>
+      <button type="submit" th:text="#{comments.submit}">মন্তব্য পোস্ট করুন</button>
     </form>
   </section>
 
@@ -80,6 +80,7 @@
   (function () {
     const articleId = /*[[${article.id}]]*/ 0;
     const videoUrl = /*[[${article.videoUrl}]]*/ null;
+    const watchVideoText = /*[[#{article.watchVideo}]]*/ 'ভিডিও দেখুন';
     const likeBtn = document.getElementById('like-btn');
     const dislikeBtn = document.getElementById('dislike-btn');
 
@@ -112,7 +113,7 @@
         container.innerHTML = '<iframe src="' + embedUrl + '" title="ভিডিও" frameborder="0" ' +
           'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
       } else {
-        container.innerHTML = '<a href="' + videoUrl + '" target="_blank" rel="noopener">ভিডিও দেখুন</a>';
+        container.innerHTML = '<a href="' + videoUrl + '" target="_blank" rel="noopener">' + watchVideoText + '</a>';
       }
     }
   })();

@@ -20,6 +20,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/style.css" />
+  <script>
+    (function () {
+      var saved = localStorage.getItem('site-theme');
+      if (saved === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
 </head>
 <body>
 
@@ -28,19 +34,28 @@
     <div class="container site-header__top">
       <a href="/" class="logo">শাহজাদা আল হাবীব</a>
       <form class="search-form" action="/search" method="get">
-        <input type="text" name="q" placeholder="লেখা খুঁজুন..." />
-        <button type="submit">খুঁজুন</button>
+        <input type="text" name="q" th:placeholder="#{search.placeholder}" />
+        <button type="submit" th:text="#{search.button}">Search</button>
       </form>
+      <div class="header-controls">
+        <div class="lang-switch">
+          <a href="?lang=bn" th:classappend="${#locale.language == 'bn'} ? 'active'" th:text="#{lang.bn}">বাংলা</a>
+          <span>/</span>
+          <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'active'" th:text="#{lang.en}">English</a>
+        </div>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+      </div>
     </div>
     <nav class="site-nav">
       <div class="container">
         <ul>
-          <li><a href="/">হোম</a></li>
+          <li><a href="/" th:text="#{nav.home}">হোম</a></li>
           <li th:each="cat : ${navCategories}" th:if="${cat.slug != 'gallery'}">
             <a th:href="@{'/category/' + ${cat.slug}}" th:text="${cat.name}">Category</a>
           </li>
-          <li><a href="/gallery">গ্যালারি</a></li>
-          <li><a href="/about">আমার সম্পর্কে</a></li>
+          <li><a href="/gallery" th:text="#{nav.gallery}">গ্যালারি</a></li>
+          <li><a href="/about" th:text="#{nav.about}">আমার সম্পর্কে</a></li>
+          <li><a href="https://shahajada-habib.github.io/portfolio/" target="_blank" rel="noopener" th:text="#{nav.portfolio}">টেক প্রোফাইল</a></li>
         </ul>
       </div>
     </nav>
@@ -51,7 +66,7 @@
   <div class="container">
     <div>
       <a href="/" class="logo" style="font-size:1.1rem;">শাহজাদা আল হাবীব</a>
-      <p class="footer-note">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
+      <p class="footer-note" th:text="#{footer.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
     </div>
     <div class="social-links">
       <a href="https://www.facebook.com/ShahajadaAlHabib" target="_blank" rel="noopener" aria-label="Facebook">
@@ -66,6 +81,27 @@
     </div>
     <p class="footer-note">&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> শাহজাদা আল হাবীব</p>
   </div>
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      function applyIcon() {
+        btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+      }
+      applyIcon();
+      btn.addEventListener('click', function () {
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+          document.documentElement.removeAttribute('data-theme');
+          localStorage.setItem('site-theme', 'light');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('site-theme', 'dark');
+        }
+        applyIcon();
+      });
+    })();
+  </script>
 </footer>
 
 </body>

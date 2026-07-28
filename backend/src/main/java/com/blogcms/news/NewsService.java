@@ -23,6 +23,8 @@ import com.blogcms.tag.TagRepository;
 import com.blogcms.user.User;
 import com.blogcms.user.UserRepository;
 
+import org.springframework.context.i18n.LocaleContextHolder;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -479,12 +481,18 @@ public class NewsService {
             "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
             "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
     };
+    private static final String[] ENGLISH_MONTHS = {
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+    };
 
     private String formatDisplayDate(LocalDateTime value) {
         if (value == null) {
             return "";
         }
-        return value.getDayOfMonth() + " " + BENGALI_MONTHS[value.getMonthValue() - 1] + ", " + value.getYear();
+        boolean english = "en".equals(LocaleContextHolder.getLocale().getLanguage());
+        String[] months = english ? ENGLISH_MONTHS : BENGALI_MONTHS;
+        return value.getDayOfMonth() + " " + months[value.getMonthValue() - 1] + ", " + value.getYear();
     }
 
     private List<News> visiblePublishedNews() {

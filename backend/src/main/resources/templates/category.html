@@ -18,7 +18,7 @@
       </div>
     </a>
   </div>
-  <div class="empty-state" th:if="${articles.isEmpty()}">এই ক্যাটাগরিতে এখনো কোনো লেখা নেই।</div>
+  <div class="empty-state" th:if="${articles.isEmpty()}" th:text="#{category.empty}">এই ক্যাটাগরিতে এখনো কোনো লেখা নেই।</div>
 
   <nav class="pagination" th:if="${totalPages > 1}">
     <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"

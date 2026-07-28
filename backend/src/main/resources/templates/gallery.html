@@ -5,8 +5,8 @@
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <main class="container">
-  <h1 class="section-title">গ্যালারি</h1>
-  <p style="color:var(--text-muted); margin-top:-10px;">বইমেলা, ভ্রমণ ও ব্যক্তিগত স্মৃতির কিছু ঝলক</p>
+  <h1 class="section-title" th:text="#{gallery.title}">গ্যালারি</h1>
+  <p style="color:var(--text-muted); margin-top:-10px;" th:text="#{gallery.subtitle}">বইমেলা, ভ্রমণ ও ব্যক্তিগত স্মৃতির কিছু ঝলক</p>
 
   <div class="gallery-grid" th:if="${!photos.isEmpty()}">
     <div class="gallery-item reveal" th:each="photo : ${photos}">
@@ -15,7 +15,7 @@
     </div>
   </div>
   <div class="empty-state" th:if="${photos.isEmpty()}">
-    এখনো কোনো ছবি যোগ করা হয়নি — <a href="/admin">/admin</a> এর মিডিয়া লাইব্রেরি থেকে ছবি "গ্যালারিতে দেখান" করুন।
+    <span th:text="#{gallery.empty}">এখনো কোনো ছবি যোগ করা হয়নি —</span> <a href="/admin">/admin</a> <span th:text="#{gallery.emptyLinkText}">এর মিডিয়া লাইব্রেরি থেকে ছবি "গ্যালারিতে দেখান" করুন।</span>
   </div>
 </main>
 
