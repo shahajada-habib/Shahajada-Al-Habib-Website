@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
 <body>
+<div id="fb-root"></div>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <section class="hero">
@@ -70,9 +71,29 @@
     </div>
   </section>
 
+  <section class="social-feed">
+    <h2 class="section-title">সামাজিক মাধ্যমে যুক্ত থাকুন</h2>
+    <div class="social-feed__grid">
+      <div class="fb-page"
+           data-href="https://www.facebook.com/ShahajadaAlHabib"
+           data-tabs="timeline"
+           data-width="500"
+           data-height="500"
+           data-small-header="true"
+           data-adapt-container-width="true"
+           data-hide-cover="false"
+           data-show-facepile="true">
+        <blockquote cite="https://www.facebook.com/ShahajadaAlHabib" class="fb-xfbml-parse-ignore">
+          <a href="https://www.facebook.com/ShahajadaAlHabib" target="_blank" rel="noopener">Shahajada Al Habib</a>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>
 <script src="/js/reveal.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/bn_BD/sdk.js#xfbml=1&version=v19.0"></script>
 </body>
 </html>
