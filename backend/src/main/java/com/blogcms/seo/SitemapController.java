@@ -17,8 +17,6 @@ import com.blogcms.category.CategoryRepository;
 import com.blogcms.news.News;
 import com.blogcms.news.NewsRepository;
 import com.blogcms.news.NewsStatus;
-import com.blogcms.user.User;
-import com.blogcms.user.UserRepository;
 
 @RestController
 public class SitemapController {
@@ -26,17 +24,14 @@ public class SitemapController {
 
     private final CategoryRepository categoryRepository;
     private final NewsRepository newsRepository;
-    private final UserRepository userRepository;
     private final String siteUrl;
 
     public SitemapController(
             CategoryRepository categoryRepository,
             NewsRepository newsRepository,
-            UserRepository userRepository,
             @Value("${SITE_URL:https://your-domain.example.com}") String siteUrl) {
         this.categoryRepository = categoryRepository;
         this.newsRepository = newsRepository;
-        this.userRepository = userRepository;
         this.siteUrl = normalizeSiteUrl(siteUrl);
     }
 
@@ -47,7 +42,8 @@ public class SitemapController {
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
         appendUrl(xml, "/", "hourly", "1.0", null);
-        appendUrl(xml, "/journalists", "monthly", "0.6", null);
+        appendUrl(xml, "/about", "monthly", "0.6", null);
+        appendUrl(xml, "/gallery", "weekly", "0.6", null);
 
         for (Category category : categoryRepository.findAll()) {
             if (category.getSlug() != null && !category.getSlug().isBlank()) {
@@ -61,10 +57,6 @@ public class SitemapController {
                 PageRequest.of(0, 1000)).getContent();
         for (News article : articles) {
             appendUrl(xml, "/article/" + article.getSlug(), "weekly", "0.9", formatLastModified(article.getUpdatedAt()));
-        }
-
-        for (User journalist : userRepository.findPublicJournalists()) {
-            appendUrl(xml, "/author/" + journalist.getUsername(), "monthly", "0.6", null);
         }
 
         xml.append("</urlset>\n");
