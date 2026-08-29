@@ -56,6 +56,7 @@ function showDashboard() {
   loadCategoriesForSelect();
   loadArticles();
   loadComments();
+  loadCvRequests();
   loadCategories();
   loadMedia();
 }
@@ -83,6 +84,7 @@ async function loadDashboard() {
       <div class="stat-card"><div class="value">${stats.published}</div><div class="label">Published</div></div>
       <div class="stat-card"><div class="value">${stats.draft}</div><div class="label">Drafts</div></div>
       <div class="stat-card"><div class="value">${stats.pendingComments}</div><div class="label">Pending comments</div></div>
+      <div class="stat-card"><div class="value">${stats.pendingCvRequests}</div><div class="label">Pending CV requests</div></div>
       <div class="stat-card"><div class="value">${stats.todayPublished}</div><div class="label">Published today</div></div>
     `;
     document.getElementById("dashboard-lists").innerHTML = `
@@ -305,6 +307,85 @@ async function loadComments() {
     wrap.innerHTML = `<div class="empty-state">Could not load comments.</div>`;
   }
 }
+
+// ---- CV requests ----
+async function loadCvRequests() {
+  const wrap = document.getElementById("cv-requests-table-wrap");
+  wrap.innerHTML = `<p style="color:var(--text-muted)">Loading...</p>`;
+  try {
+    const requests = await apiRequest("/api/admin/cv-requests");
+    if (!requests.length) {
+      wrap.innerHTML = `<div class="empty-state">No CV requests yet.</div>`;
+      return;
+    }
+    wrap.innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Purpose</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${requests.map((r) => `
+            <tr>
+              <td>${(r.createdAt || "").slice(0, 16).replace("T", " ")}</td>
+              <td>${r.name}</td>
+              <td><a href="mailto:${r.email}?subject=${encodeURIComponent("সিভি — শাহজাদা আল হাবীব")}">${r.email}</a></td>
+              <td>${r.purpose}</td>
+              <td>${statusBadge(r.status)}</td>
+              <td class="table-actions">
+                <button class="btn btn--ghost btn--sm" data-cv-status="sent" data-cv-id="${r.id}" ${r.status === "sent" ? "disabled" : ""}>Mark sent</button>
+                <button class="btn btn--ghost btn--sm" data-cv-status="declined" data-cv-id="${r.id}" ${r.status === "declined" ? "disabled" : ""}>Decline</button>
+                <button class="btn btn--danger btn--sm" data-cv-delete="${r.id}">Delete</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    wrap.querySelectorAll("[data-cv-status]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        try {
+          await apiRequest("/api/admin/cv-requests/" + btn.dataset.cvId + "/status", {
+            method: "PATCH",
+            body: { status: btn.dataset.cvStatus },
+          });
+          loadCvRequests();
+          loadDashboard();
+        } catch (err) {
+          alert(err.message || "Could not update request.");
+        }
+      });
+    });
+    wrap.querySelectorAll("[data-cv-delete]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Delete this CV request?")) return;
+        await apiRequest("/api/admin/cv-requests/" + btn.dataset.cvDelete, { method: "DELETE" });
+        loadCvRequests();
+        loadDashboard();
+      });
+    });
+  } catch (err) {
+    wrap.innerHTML = `<div class="empty-state">Could not load CV requests.</div>`;
+  }
+}
+
+document.getElementById("cv-file-download-btn").addEventListener("click", async () => {
+  try {
+    const token = localStorage.getItem("adminToken");
+    const res = await fetch("/api/admin/cv-requests/file", {
+      headers: token ? { Authorization: "Bearer " + token } : {},
+    });
+    if (!res.ok) throw new Error("Download failed (" + res.status + ")");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cv.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert(err.message || "Could not download the CV file.");
+  }
+});
 
 // ---- Categories ----
 document.getElementById("category-form").addEventListener("submit", async (e) => {

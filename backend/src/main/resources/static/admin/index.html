@@ -46,6 +46,7 @@
       <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
       <button class="tab-btn" data-tab="articles">লেখা</button>
       <button class="tab-btn" data-tab="comments">মন্তব্য</button>
+      <button class="tab-btn" data-tab="cv-requests">সিভি অনুরোধ</button>
       <button class="tab-btn" data-tab="categories">ক্যাটাগরি</button>
       <button class="tab-btn" data-tab="media">মিডিয়া লাইব্রেরি</button>
       <button class="tab-btn" data-tab="settings">সেটিংস</button>
@@ -166,6 +167,16 @@
     <div class="tab-panel" id="comments-panel">
       <div class="admin-panel-head"><h2>মন্তব্য</h2></div>
       <div id="comments-table-wrap"></div>
+    </div>
+
+    <!-- CV requests -->
+    <div class="tab-panel" id="cv-requests-panel">
+      <div class="admin-panel-head">
+        <h2>সিভি অনুরোধ</h2>
+        <button class="btn btn--ghost btn--sm" id="cv-file-download-btn">সিভি ফাইল ডাউনলোড</button>
+      </div>
+      <p class="form-note">যাচাই শেষে "Sent" চাপুন। সিভি ফাইলটি নিজের ইমেইল থেকে অনুরোধকারীকে পাঠাতে হবে।</p>
+      <div id="cv-requests-table-wrap"></div>
     </div>
 
     <!-- Categories -->

@@ -7,15 +7,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title th:text="${title} + ' | শাহজাদা আল হাবীব'">শাহজাদা আল হাবীব</title>
   <meta name="description" th:content="${description}" />
-  <link rel="canonical" th:href="@{${url}}" />
+  <!--/* Share bots (Facebook, WhatsApp, X) reject relative URLs, so canonical/og:url and
+       og:image are built absolute from app.site-url rather than left as a bare path. */-->
+  <link rel="canonical" th:href="${siteUrl + url}" />
 
-  <meta property="og:type" content="article" />
+  <meta property="og:type" th:content="${pageType}" content="website" />
+  <meta property="og:site_name" content="শাহজাদা আল হাবীব" />
+  <meta property="og:locale" th:content="${#locale.language == 'en' ? 'en_US' : 'bn_BD'}" />
   <meta property="og:title" th:content="${title}" />
   <meta property="og:description" th:content="${description}" />
-  <meta property="og:url" th:content="@{${url}}" />
-  <meta property="og:image" th:if="${!#strings.isEmpty(image)}" th:content="${image}" />
+  <meta property="og:url" th:content="${siteUrl + url}" />
+  <!--/* Fall back to a site-wide share card so links never preview without an image. */-->
+  <meta property="og:image"
+        th:content="${#strings.isEmpty(image)
+                       ? siteUrl + '/assets/og-default.jpg'
+                       : (#strings.startsWith(image, 'http') ? image : siteUrl + image)}" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/assets/icon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/icon-180.png" />
   <link rel="alternate" type="application/rss+xml" title="শাহজাদা আল হাবীব RSS" href="/rss.xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />

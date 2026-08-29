@@ -8,6 +8,9 @@
   --surface: #ffffff;
   --surface-alt: #fdfcfa;
   --radius: 10px;
+  /* Faint brand wash for call-to-action panels, so they read as intentional rather than empty. */
+  --tint: rgba(199, 107, 42, 0.06);
+  --tint-border: rgba(199, 107, 42, 0.22);
   --shadow: 0 4px 20px rgba(107, 79, 58, 0.08);
   --font: 'Noto Sans Bengali', sans-serif;
   --font-serif: 'Noto Serif Bengali', serif;
@@ -19,6 +22,8 @@
   --border: #3a2f26;
   --surface: #1c1512;
   --surface-alt: #241c17;
+  --tint: rgba(199, 107, 42, 0.14);
+  --tint-border: rgba(199, 107, 42, 0.32);
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
 }
 
@@ -174,6 +179,15 @@ section { padding: 40px 0; }
 }
 .comment-success { background: #ecfdf3; color: #067647; padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; margin-bottom: 12px; }
 
+/* CV request (about page) */
+.cv-request { margin-top: 8px; }
+.cv-request__done { background: #ecfdf3; color: #067647; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; max-width: 600px; }
+.cv-request__form input, .cv-request__form textarea {
+  padding: 11px 14px; border-radius: 8px; border: 1px solid var(--border);
+  font-family: inherit; font-size: 0.92rem; background: var(--surface); color: var(--text);
+}
+.cv-request__form button { border: none; cursor: pointer; }
+
 /* Sidebar layout (category/search) */
 .content-layout { display: grid; grid-template-columns: 2.2fr 1fr; gap: 32px; align-items: flex-start; }
 .sidebar-box { background: var(--surface-alt); border-radius: var(--radius); padding: 20px; }
@@ -215,12 +229,35 @@ section { padding: 40px 0; }
 .video-embed #video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius); }
 .video-embed #video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: var(--radius); }
 
-/* Social feed */
+/* Social feed — click-to-load facades, so no vendor script runs until asked */
 .social-feed__grid { display: flex; justify-content: center; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
-.fb-page { width: 100%; max-width: 500px; }
-.youtube-feed { width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center; }
-.youtube-feed__player { width: 100%; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow); }
-.youtube-feed__player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.embed-facade { width: 100%; max-width: 500px; }
+/* Compact CTA card, not a big empty placeholder: a faint sepia wash and the primary-filled
+   icon keep it reading as something to click rather than a blank panel. */
+.embed-facade__box {
+  width: 100%;
+  border: 1px solid var(--tint-border); border-radius: var(--radius); background: var(--tint);
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 14px;
+  padding: 18px 20px; align-items: center;
+}
+.embed-facade__icon {
+  grid-row: span 2; align-self: start;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.embed-facade__title { font-weight: 700; color: var(--dark); }
+:root[data-theme="dark"] .embed-facade__title { color: var(--text); }
+.embed-facade__note { font-size: 0.78rem; color: var(--text-muted); }
+.embed-facade__actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.embed-facade__actions .btn { padding: 8px 16px; font-size: 0.85rem; }
+.embed-facade__btn { border: none; cursor: pointer; font-family: inherit; }
+/* Once loaded, the box just hosts the embed — drop the CTA framing. */
+.embed-facade__box:has(.fb-page), .embed-facade__box:has(.embed-facade__player) {
+  padding: 0; border: none; background: none; display: block;
+}
+.embed-facade__player { width: 100%; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow); }
+.embed-facade__player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
 /* Hero */
 .hero { background: var(--surface-alt); border-bottom: 3px solid var(--dark); padding: 56px 0; }

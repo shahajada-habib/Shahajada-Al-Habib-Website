@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
 <body>
 <div id="fb-root"></div>
@@ -21,7 +21,14 @@
       </div>
     </div>
     <div class="hero__photo reveal">
-      <img src="/assets/ShahajadaProfile800800.jpg" alt="শাহজাদা আল হাবীব" />
+      <!--/* Rendered at 220px; serve a 440px file (2x) instead of the 800px original,
+           and let high-DPI screens opt into 880px. width/height stop the layout shifting. */-->
+      <img src="/assets/profile-440.jpg"
+           srcset="/assets/profile-440.jpg 440w, /assets/profile-880.jpg 880w"
+           sizes="220px"
+           width="220" height="220"
+           fetchpriority="high"
+           alt="শাহজাদা আল হাবীব" />
     </div>
   </div>
 </section>
@@ -56,8 +63,8 @@
     <h2 class="section-title" th:text="#{home.latest}">সাম্প্রতিক লেখা</h2>
     <div class="article-grid" th:if="${!latest.isEmpty()}">
       <a class="article-card reveal" th:each="item : ${latest}" th:href="@{'/article/' + ${item.slug}}">
-        <div class="article-card__image">
-          <img th:src="${item.imageUrl}" th:if="${!#strings.isEmpty(item.imageUrl)}" th:alt="${item.imageAlt ?: item.title}" />
+        <div class="article-card__image" th:if="${!#strings.isEmpty(item.imageUrl)}">
+          <img th:src="${item.imageUrl}" th:alt="${item.imageAlt ?: item.title}" />
         </div>
         <div class="article-card__body">
           <span class="article-card__category" th:if="${!#strings.isEmpty(item.category)}" th:text="${item.category}">Category</span>
@@ -71,32 +78,42 @@
     </div>
   </section>
 
+  <!--/* Both embeds are click-to-load facades. The Facebook SDK and the YouTube player
+       together cost ~1.5s and set third-party cookies on every visit, so nothing from
+       facebook.com or youtube.com is requested until the reader actually asks for it. */-->
   <section class="social-feed">
     <h2 class="section-title" th:text="#{social.heading}">সামাজিক মাধ্যমে যুক্ত থাকুন</h2>
     <div class="social-feed__grid">
-      <div class="fb-page"
-           data-href="https://www.facebook.com/ShahajadaAlHabib"
-           data-tabs="timeline"
-           data-width="500"
-           data-height="500"
-           data-small-header="true"
-           data-adapt-container-width="true"
-           data-hide-cover="false"
-           data-show-facepile="true">
-        <blockquote cite="https://www.facebook.com/ShahajadaAlHabib" class="fb-xfbml-parse-ignore">
-          <a href="https://www.facebook.com/ShahajadaAlHabib" target="_blank" rel="noopener">Shahajada Al Habib</a>
-        </blockquote>
+      <div class="embed-facade" data-embed="facebook">
+        <div class="embed-facade__box">
+          <span class="embed-facade__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12"/></svg>
+          </span>
+          <div class="embed-facade__text">
+            <p class="embed-facade__title" th:text="#{social.fbTitle}">ফেসবুক পেজ</p>
+            <p class="embed-facade__note" th:text="#{social.embedNote}">ক্লিক করলে বাইরের কনটেন্ট লোড হবে।</p>
+          </div>
+          <div class="embed-facade__actions">
+            <button type="button" class="btn btn--primary embed-facade__btn" th:text="#{social.loadFeed}">ফিড লোড করুন</button>
+            <a class="btn btn--outline" href="https://www.facebook.com/ShahajadaAlHabib" target="_blank" rel="noopener" th:text="#{social.visitPage}">পেজ দেখুন</a>
+          </div>
+        </div>
       </div>
 
-      <div class="youtube-feed">
-        <div class="youtube-feed__player">
-          <iframe src="https://www.youtube.com/embed/videoseries?list=UUmJWuf6k3X8UUH-EBNbFx9g"
-                  title="সাম্প্রতিক ভিডিও — শাহজাদা আল হাবীব"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
+      <div class="embed-facade" data-embed="youtube">
+        <div class="embed-facade__box">
+          <span class="embed-facade__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.87.56 9.38.56 9.38.56s7.51 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8M9.6 15.6V8.4l6.27 3.6z"/></svg>
+          </span>
+          <div class="embed-facade__text">
+            <p class="embed-facade__title" th:text="#{social.ytTitle}">সাম্প্রতিক ভিডিও</p>
+            <p class="embed-facade__note" th:text="#{social.embedNote}">ক্লিক করলে বাইরের কনটেন্ট লোড হবে।</p>
+          </div>
+          <div class="embed-facade__actions">
+            <button type="button" class="btn btn--primary embed-facade__btn" th:text="#{social.loadVideo}">ভিডিও লোড করুন</button>
+            <a class="btn btn--outline" href="https://www.youtube.com/@shahajadaalhabib" target="_blank" rel="noopener" th:text="#{social.viewChannel}">পুরো চ্যানেল দেখুন</a>
+          </div>
         </div>
-        <a class="btn btn--outline" style="margin-top:12px;" href="https://www.youtube.com/@shahajadaalhabib" target="_blank" rel="noopener" th:text="#{social.viewChannel}">পুরো চ্যানেল দেখুন</a>
       </div>
     </div>
   </section>
@@ -105,6 +122,41 @@
 
 <div th:replace="~{fragments/layout :: footer}"></div>
 <script src="/js/reveal.js"></script>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/bn_BD/sdk.js#xfbml=1&version=v19.0"></script>
+<script>
+  // Swap a facade for the real embed on click, loading the vendor script only then.
+  (function () {
+    var YT_PLAYLIST = 'UUmJWuf6k3X8UUH-EBNbFx9g';
+    var FB_PAGE = 'https://www.facebook.com/ShahajadaAlHabib';
+
+    function loadYoutube(host) {
+      host.innerHTML = '<div class="embed-facade__player"><iframe src="https://www.youtube.com/embed/videoseries?list='
+        + YT_PLAYLIST + '&autoplay=1" title="সাম্প্রতিক ভিডিও — শাহজাদা আল হাবীব" frameborder="0" '
+        + 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" '
+        + 'allowfullscreen></iframe></div>';
+    }
+
+    function loadFacebook(host) {
+      host.innerHTML = '<div id="fb-page-mount" class="fb-page" data-href="' + FB_PAGE + '" data-tabs="timeline"'
+        + ' data-width="500" data-height="500" data-small-header="true" data-adapt-container-width="true"'
+        + ' data-hide-cover="false" data-show-facepile="true"></div>';
+      if (window.FB) { window.FB.XFBML.parse(host); return; }
+      var s = document.createElement('script');
+      s.src = 'https://connect.facebook.net/bn_BD/sdk.js#xfbml=1&version=v19.0';
+      s.async = true;
+      s.defer = true;
+      s.crossOrigin = 'anonymous';
+      document.body.appendChild(s);
+    }
+
+    document.querySelectorAll('.embed-facade').forEach(function (facade) {
+      var btn = facade.querySelector('.embed-facade__btn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var box = facade.querySelector('.embed-facade__box');
+        if (facade.dataset.embed === 'youtube') { loadYoutube(box); } else { loadFacebook(box); }
+      });
+    });
+  })();
+</script>
 </body>
 </html>

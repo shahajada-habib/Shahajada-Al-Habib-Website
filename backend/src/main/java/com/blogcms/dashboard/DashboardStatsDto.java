@@ -9,6 +9,7 @@ public record DashboardStatsDto(
         long review,
         long totalUsers,
         long pendingComments,
+        long pendingCvRequests,
         long todayPublished,
         List<DashboardArticleDto> recentlyPublished,
         List<DashboardArticleDto> topViewed,

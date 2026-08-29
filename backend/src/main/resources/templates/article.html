@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
@@ -44,8 +44,8 @@
     <h2 class="section-title" th:text="#{article.related}">আরও লেখা</h2>
     <div class="article-grid">
       <a class="article-card" th:each="item : ${related}" th:href="@{'/article/' + ${item.slug}}">
-        <div class="article-card__image">
-          <img th:src="${item.imageUrl}" th:if="${!#strings.isEmpty(item.imageUrl)}" th:alt="${item.imageAlt ?: item.title}" />
+        <div class="article-card__image" th:if="${!#strings.isEmpty(item.imageUrl)}">
+          <img th:src="${item.imageUrl}" th:alt="${item.imageAlt ?: item.title}" />
         </div>
         <div class="article-card__body">
           <h3 class="article-card__title" th:text="${item.title}">Title</h3>

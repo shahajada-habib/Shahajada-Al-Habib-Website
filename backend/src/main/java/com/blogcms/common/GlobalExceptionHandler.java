@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,6 +40,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ NoSuchElementException.class, EntityNotFoundException.class })
     public ResponseEntity<ApiErrorResponse> handleNotFound(Exception exception, HttpServletRequest request) {
         return buildResponse(HttpStatus.NOT_FOUND, readableMessage(exception, "Resource not found"), request);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleMissingResource(
+            NoResourceFoundException exception,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Resource not found", request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

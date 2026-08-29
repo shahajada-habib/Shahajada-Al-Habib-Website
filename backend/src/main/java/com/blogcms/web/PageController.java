@@ -10,10 +10,12 @@ import com.blogcms.comment.CommentRequestDto;
 import com.blogcms.comment.CommentResponseDto;
 import com.blogcms.comment.CommentService;
 import com.blogcms.common.PageResponse;
+import com.blogcms.cvrequest.CvRequestService;
 import com.blogcms.media.MediaAssetService;
 import com.blogcms.news.NewsResponseDto;
 import com.blogcms.news.NewsService;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,18 +40,24 @@ public class PageController {
     private final NewsService newsService;
     private final CategoryRepository categoryRepository;
     private final CommentService commentService;
+    private final CvRequestService cvRequestService;
     private final MediaAssetService mediaAssetService;
     private final MessageSource messageSource;
+    private final String siteUrl;
 
     public PageController(
             NewsService newsService,
             CategoryRepository categoryRepository,
             CommentService commentService,
+            CvRequestService cvRequestService,
             MediaAssetService mediaAssetService,
-            MessageSource messageSource) {
+            MessageSource messageSource,
+            @Value("${app.site-url:}") String siteUrl) {
+        this.siteUrl = siteUrl.endsWith("/") ? siteUrl.substring(0, siteUrl.length() - 1) : siteUrl;
         this.newsService = newsService;
         this.categoryRepository = categoryRepository;
         this.commentService = commentService;
+        this.cvRequestService = cvRequestService;
         this.mediaAssetService = mediaAssetService;
         this.messageSource = messageSource;
     }
@@ -62,6 +70,10 @@ public class PageController {
     public void addSharedAttributes(Model model) {
         model.addAttribute("navCategories", categoryRepository.findByStatusOrderByIdAsc("active"));
         model.addAttribute("pageImage", (Object) null);
+        // Share bots need absolute canonical/og URLs; templates prepend this to the page path.
+        model.addAttribute("siteUrl", siteUrl);
+        // Only the article page is a real og:type=article; everything else is a site page.
+        model.addAttribute("pageType", "website");
     }
 
     @GetMapping("/")
@@ -116,6 +128,7 @@ public class PageController {
         model.addAttribute("pageDescription", nonBlank(article.getSeoDescription(), article.getSubtitle()));
         model.addAttribute("pageImage", article.getImageUrl());
         model.addAttribute("pageUrl", "/article/" + slug);
+        model.addAttribute("pageType", "article");
         return "article";
     }
 
@@ -156,6 +169,18 @@ public class PageController {
         model.addAttribute("pageDescription", msg("page.about.description", locale));
         model.addAttribute("pageUrl", "/about");
         return "about";
+    }
+
+    @PostMapping("/about/cv-request")
+    public String submitCvRequest(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam(required = false, defaultValue = "") String purpose,
+            @RequestParam(name = "website", required = false, defaultValue = "") String honeypot,
+            RedirectAttributes redirectAttributes) {
+        cvRequestService.create(name, email, purpose, honeypot);
+        redirectAttributes.addFlashAttribute("cvRequestSubmitted", true);
+        return "redirect:/about#cv";
     }
 
     @GetMapping("/gallery")

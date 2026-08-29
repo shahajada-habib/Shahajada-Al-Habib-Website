@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.blogcms.comment.CommentRepository;
+import com.blogcms.cvrequest.CvRequestService;
 import com.blogcms.news.NewsRepository;
 import com.blogcms.news.NewsStatus;
 import com.blogcms.user.UserRepository;
@@ -21,14 +22,17 @@ public class DashboardController {
     private final NewsRepository newsRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final CvRequestService cvRequestService;
 
     public DashboardController(
             NewsRepository newsRepository,
             UserRepository userRepository,
-            CommentRepository commentRepository) {
+            CommentRepository commentRepository,
+            CvRequestService cvRequestService) {
         this.newsRepository = newsRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.cvRequestService = cvRequestService;
     }
 
     @GetMapping("/stats")
@@ -41,6 +45,7 @@ public class DashboardController {
                 newsRepository.countByStatus(NewsStatus.REVIEW),
                 userRepository.count(),
                 commentRepository.countByStatus("pending"),
+                cvRequestService.pendingCount(),
                 newsRepository.countPublishedBetween(NewsStatus.PUBLISHED, today.atStartOfDay(), today.plusDays(1).atStartOfDay()),
                 dashboardArticles(newsRepository.findRecentlyPublishedDashboardItems(NewsStatus.PUBLISHED, PageRequest.of(0, 5))),
                 dashboardArticles(newsRepository.findTopViewedDashboardItems(NewsStatus.PUBLISHED, PageRequest.of(0, 5))),

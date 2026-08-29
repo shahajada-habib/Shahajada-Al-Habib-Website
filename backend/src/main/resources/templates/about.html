@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <main class="container">
   <div class="author-header" style="margin-bottom:36px;">
-    <img class="author-avatar" src="/assets/ShahajadaProfile800800.jpg" alt="শাহজাদা আল হাবীব" style="width:140px;height:140px;">
+    <img class="author-avatar" src="/assets/profile-440.jpg" width="140" height="140" alt="শাহজাদা আল হাবীব" style="width:140px;height:140px;">
     <div>
       <h1 style="font-size:1.7rem;">শাহজাদা আল হাবীব</h1>
       <p style="font-size:1.05rem; margin-top:4px;" th:text="#{footer.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
@@ -26,7 +26,21 @@
     </p>
   </div>
 
-  <a href="/assets/cv.pdf" class="btn" style="background:var(--primary); color:#fff; padding:11px 22px; border-radius:8px; font-weight:600; display:inline-block;" download th:text="#{about.downloadCv}">সিভি ডাউনলোড করুন</a>
+  <div id="cv" class="cv-request">
+    <p class="cv-request__done" th:if="${cvRequestSubmitted}" th:text="#{about.cvRequest.success}">ধন্যবাদ — আপনার অনুরোধটি জমা হয়েছে। শীঘ্রই ইমেইলে সিভি পাঠানো হবে।</p>
+
+    <details class="sidebar-box" th:unless="${cvRequestSubmitted}" style="max-width:600px;">
+      <summary style="cursor:pointer; font-weight:600; color:var(--primary);" th:text="#{about.downloadCv}">সিভি চেয়ে অনুরোধ করুন</summary>
+      <p style="margin-top:10px; color:var(--text-muted);" th:text="#{about.cvRequest.intro}">সিভিটি সরাসরি ডাউনলোডের জন্য উন্মুক্ত নয়। নিচের তথ্য দিলে ইমেইলে পাঠিয়ে দেওয়া হবে।</p>
+      <form class="cv-request__form" th:action="@{/about/cv-request}" method="post" style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+        <input type="text" name="name" th:placeholder="#{about.cvRequest.name}" required maxlength="120" />
+        <input type="email" name="email" th:placeholder="#{about.cvRequest.email}" required maxlength="200" />
+        <textarea name="purpose" rows="3" th:placeholder="#{about.cvRequest.purpose}" required maxlength="2000"></textarea>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;" />
+        <button type="submit" class="btn" style="background:var(--primary); color:#fff; padding:10px 20px; border-radius:8px; font-weight:600; align-self:flex-start;" th:text="#{about.cvRequest.submit}">অনুরোধ পাঠান</button>
+      </form>
+    </details>
+  </div>
 
   <div class="social-links" style="margin-top:32px; justify-content:flex-start;">
     <a href="https://www.facebook.com/ShahajadaAlHabib" target="_blank" rel="noopener" aria-label="Facebook" style="background:var(--dark);">

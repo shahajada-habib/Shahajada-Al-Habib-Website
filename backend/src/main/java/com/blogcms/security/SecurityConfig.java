@@ -46,7 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/health", "/actuator/health").permitAll()
                         // Server-rendered public site (Thymeleaf) + static admin panel shell.
                         // The admin panel's actual data calls go through /api/** below, which stays protected.
-                        .requestMatchers("/", "/category/**", "/article/**", "/search", "/about", "/gallery").permitAll()
+                        .requestMatchers("/", "/category/**", "/article/**", "/search", "/about", "/about/cv-request", "/gallery").permitAll()
                         .requestMatchers("/admin", "/admin/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/assets/**", "/webjars/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/news/**", "/api/categories/**", "/api/media/**").authenticated()
