@@ -1,0 +1,34 @@
+# Milestone 1: run the site as a single container on the VM, against the
+# existing managed (Aiven) MySQL. No database container here on purpose —
+# a 1 GB e2-micro cannot comfortably host MySQL + the JVM.
+#
+#   cd deploy && cp .env.example .env && nano .env   # fill in the values
+#   docker compose up -d --build
+#
+# Plain HTTP on port 80 for now; TLS + a domain come in Milestone 2.
+
+services:
+  web:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: shahajada-site:local
+    container_name: shahajada-site
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      PORT: "8083"
+      # 1 GB box: cap the heap and use the low-overhead collector. Exit (and let
+      # Docker restart) on OOM rather than limping along in a bad state.
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=50.0 -XX:+UseSerialGC -XX:+ExitOnOutOfMemoryError"
+    ports:
+      - "80:8083"
+    volumes:
+      # Uploaded media persists across container rebuilds. Note: this disk is
+      # separate from Render's — images uploaded here won't appear on Render and
+      # vice versa.
+      - uploads:/app/uploads
+
+volumes:
+  uploads:
