@@ -126,6 +126,35 @@ Then open `http://<VM_EXTERNAL_IP>` in a browser — the site should load, and
 
 ---
 
+## Milestone 2 — HTTPS behind Caddy
+
+Prereqs (one-time, done in the respective consoles):
+
+1. **Reserve the external IP** — GCP Console → VPC network → IP addresses →
+   find the VM's IP → *Reserve* / *Promote to static*. Free while attached;
+   stops a reboot from changing the IP (which would break DNS + the cert).
+2. **DNS A record** — at your DNS provider, add:
+   `Type A`, `Host gcp` (or `@` for the apex), `Value <VM_EXTERNAL_IP>`.
+3. **Firewall** — GCP Console → VPC network → Firewall → create a rule allowing
+   TCP `443` from `0.0.0.0/0` (targets: all instances). You already allow 80.
+
+Then on the VM:
+```
+cd ~/Shahajada-Al-Habib-Website/deploy
+git pull
+bash enable-https.sh gcp.shahajadaalhabib.com
+```
+The script verifies DNS, rewrites `.env` (`SITE_DOMAIN`, `SITE_URL`,
+`CORS_ALLOWED_ORIGINS`, `WEB_HTTP_PORT`, `COMPOSE_PROFILES=tls`), recreates the
+containers so the app sits behind Caddy, and waits for the certificate.
+
+After it succeeds: change the cron-job.org URL to `https://<domain>/api/health`.
+
+From then on `docker compose up -d` automatically includes Caddy (via
+`COMPOSE_PROFILES=tls` in `.env`).
+
+---
+
 ## Appendix A — fallback: build on your PC, ship the image
 
 If the VM can't build (out of memory), build where you have RAM:

@@ -1,11 +1,19 @@
-# Milestone 1: run the site as a single container on the VM, against the
-# existing managed (Aiven) MySQL. No database container here on purpose —
-# a 1 GB e2-micro cannot comfortably host MySQL + the JVM.
+# The site on the VM, against the existing managed (Aiven) MySQL. No database
+# container here on purpose — a 1 GB e2-micro cannot comfortably host MySQL +
+# the JVM.
 #
-#   cd deploy && cp .env.example .env && nano .env   # fill in the values
+# Milestone 1 (HTTP, current):
+#   cd deploy && cp .env.example .env && nano .env
 #   docker compose up -d --build
+#   -> app published on port 80, reachable at http://<VM_IP>
 #
-# Plain HTTP on port 80 for now; TLS + a domain come in Milestone 2.
+# Milestone 2 (HTTPS): point a DNS A record at this VM, open TCP 443, then
+#   git pull && bash enable-https.sh <domain>
+#   -> that script sets WEB_HTTP_PORT / SITE_DOMAIN / COMPOSE_PROFILES in .env
+#      so the app moves behind Caddy, which terminates TLS automatically.
+#
+# Note: the prod profile requires SITE_URL to be an https:// value even in
+# Milestone 1 (Caddy has no cert yet, but http://<VM_IP> still works for tests).
 
 services:
   web:
@@ -21,14 +29,35 @@ services:
       PORT: "8083"
       # 1 GB box: cap the heap and use the low-overhead collector. Exit (and let
       # Docker restart) on OOM rather than limping along in a bad state.
-      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=50.0 -XX:+UseSerialGC -XX:+ExitOnOutOfMemoryError"
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=45.0 -XX:+UseSerialGC -XX:+ExitOnOutOfMemoryError"
     ports:
-      - "80:8083"
+      # M1: "0.0.0.0:80:8083" (public). M2: enable-https.sh sets
+      # WEB_HTTP_PORT=127.0.0.1:8083 so only Caddy is exposed publicly.
+      - "${WEB_HTTP_PORT:-0.0.0.0:80}:8083"
     volumes:
-      # Uploaded media persists across container rebuilds. Note: this disk is
-      # separate from Render's — images uploaded here won't appear on Render and
-      # vice versa.
+      # Uploaded media persists across rebuilds. This disk is separate from
+      # Render's — images uploaded here won't appear on Render and vice versa.
       - uploads:/app/uploads
+
+  caddy:
+    # Only started when COMPOSE_PROFILES=tls (enable-https.sh sets that in .env).
+    profiles: ["tls"]
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: "${SITE_DOMAIN:-}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
 
 volumes:
   uploads:
+  caddy_data:
+  caddy_config:

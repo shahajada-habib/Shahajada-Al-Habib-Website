@@ -1,0 +1,6 @@
+# Caddy fetches and renews a Let's Encrypt certificate for $SITE_DOMAIN
+# automatically (needs ports 80 + 443 reachable and the DNS A record in place).
+{$SITE_DOMAIN} {
+	reverse_proxy web:8083
+	encode gzip
+}
