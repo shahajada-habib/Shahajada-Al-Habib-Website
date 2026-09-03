@@ -18,12 +18,26 @@ WWW="www.${APEX}"
 GCP="gcp.${APEX}"
 here=$(curl -s https://api.ipify.org)
 
-echo "Checking apex DNS ..."
-dns=$(curl -s "https://dns.google/resolve?name=${APEX}&type=A" \
-        | grep -oE '"data":"[0-9.]+"' | grep -oE '[0-9.]+' | head -1 || true)
-echo "  this VM: ${here}    ${APEX} -> ${dns:-<no A record>}"
-if [ "${dns:-}" != "$here" ]; then
-  echo "  Point the apex A record at ${here} first, wait for it to propagate, then re-run." >&2
+# Resolve the apex through several independent resolvers; accept if ANY of them
+# already sees this VM's IP. (Google's public resolver negative-caches a missing
+# record for up to an hour, so relying on it alone can block for no reason.)
+resolves_here() {
+  getent hosts "$APEX" 2>/dev/null | grep -qw "$here" && return 0
+  curl -s "https://dns.google/resolve?name=${APEX}&type=A" \
+    | grep -oE '"data":"[0-9.]+"' | grep -oE '[0-9.]+' | grep -qx "$here" && return 0
+  curl -s -H 'accept: application/dns-json' \
+    "https://cloudflare-dns.com/dns-query?name=${APEX}&type=A" \
+    | grep -oE '"data":"[0-9.]+"' | grep -oE '[0-9.]+' | grep -qx "$here" && return 0
+  return 1
+}
+
+if [ "${FORCE:-}" = "1" ]; then
+  echo "FORCE=1 set — skipping the DNS check."
+elif resolves_here; then
+  echo "DNS check: ${APEX} resolves to ${here}."
+else
+  echo "  ${APEX} does not resolve to ${here} yet on any resolver checked." >&2
+  echo "  Wait for the A record to propagate, or re-run with:  FORCE=1 bash $0 $APEX" >&2
   exit 1
 fi
 
