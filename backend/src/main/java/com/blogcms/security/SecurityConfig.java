@@ -49,8 +49,13 @@ public class SecurityConfig {
                         .requestMatchers("/", "/category/**", "/article/**", "/search", "/about", "/about/cv-request", "/gallery").permitAll()
                         .requestMatchers("/admin", "/admin/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/assets/**", "/webjars/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/api/news/**", "/api/categories/**", "/api/media/**").authenticated()
-                        .anyRequest().authenticated())
+                        // The servlet error dispatch renders the public HTML error page (templates/error.html).
+                        .requestMatchers("/error").permitAll()
+                        // Everything under /api/** that was not explicitly permitted above needs a valid token.
+                        .requestMatchers("/api/**").authenticated()
+                        // Any other path is an unknown public URL: let it reach the DispatcherServlet so it
+                        // resolves to a proper 404 page instead of a misleading 401 JSON body.
+                        .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

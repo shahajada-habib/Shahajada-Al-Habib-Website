@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="bn" xmlns:th="http://www.thymeleaf.org">
+<!--/* Standalone public error page. Rendered by Spring Boot's BasicErrorController for any
+     unhandled status on the server-rendered site (404 for unknown URLs, 5xx on failure).
+     Deliberately does NOT use the layout fragment: the error dispatch has none of the
+     per-page model attributes (navCategories, siteUrl, ...) that fragment needs. */-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title th:text="(${status} == 404 ? 'পেজ পাওয়া যায়নি' : 'কিছু একটা সমস্যা হয়েছে') + ' | শাহজাদা আল হাবীব'">সমস্যা হয়েছে | শাহজাদা আল হাবীব</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <script>
+    (function () {
+      if (localStorage.getItem('site-theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <style>
+    .error-page {
+      min-height: 70vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 60px 20px; gap: 10px;
+    }
+    .error-page__code {
+      font-family: var(--font-serif); font-size: clamp(3.5rem, 12vw, 6rem);
+      font-weight: 700; line-height: 1; color: var(--primary); margin-bottom: 6px;
+    }
+    .error-page__title { font-size: clamp(1.25rem, 4vw, 1.6rem); }
+    .error-page__text { color: var(--text-muted); max-width: 30rem; }
+    .error-page__actions { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header__top">
+    <a href="/" class="logo">শাহজাদা আল হাবীব</a>
+  </div>
+</header>
+
+<main class="container error-page">
+  <div class="error-page__code" th:text="${status} ?: 'ত্রুটি'">404</div>
+
+  <h1 class="error-page__title" th:if="${status} == 404">পেজটি খুঁজে পাওয়া যায়নি</h1>
+  <h1 class="error-page__title" th:unless="${status} == 404">কিছু একটা সমস্যা হয়েছে</h1>
+
+  <p class="error-page__text" th:if="${status} == 404">
+    আপনি যে ঠিকানাটি খুঁজছেন সেটি সরে গেছে বা কখনো ছিল না।
+    নিচের বোতাম থেকে হোমপেজে ফিরে যান।
+  </p>
+  <p class="error-page__text" th:unless="${status} == 404">
+    সাময়িক একটি সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করুন।
+  </p>
+
+  <div class="error-page__actions">
+    <a class="btn btn--primary" href="/">হোমপেজে ফিরুন</a>
+    <a class="btn btn--outline" href="/gallery">গ্যালারি</a>
+  </div>
+</main>
+
+</body>
+</html>

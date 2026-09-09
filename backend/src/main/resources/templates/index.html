@@ -20,15 +20,26 @@
         <a class="btn btn--outline" href="/gallery" th:text="#{hero.galleryBtn}">গ্যালারি দেখুন</a>
       </div>
     </div>
-    <div class="hero__photo reveal">
-      <!--/* Rendered at 220px; serve a 440px file (2x) instead of the 800px original,
-           and let high-DPI screens opt into 880px. width/height stop the layout shifting. */-->
-      <img src="/assets/profile-440.jpg"
-           srcset="/assets/profile-440.jpg 440w, /assets/profile-880.jpg 880w"
-           sizes="220px"
-           width="220" height="220"
-           fetchpriority="high"
-           alt="শাহজাদা আল হাবীব" />
+    <div class="hero__media reveal">
+      <div class="hero__photo">
+        <!--/* Rendered at 230px; serve a 440px file (2x) instead of the 800px original,
+             and let high-DPI screens opt into 880px. width/height stop the layout shifting. */-->
+        <img src="/assets/profile-440.jpg"
+             srcset="/assets/profile-440.jpg 440w, /assets/profile-880.jpg 880w"
+             sizes="230px"
+             width="230" height="230"
+             fetchpriority="high"
+             alt="শাহজাদা আল হাবীব" />
+      </div>
+      <!--/* The published book as an object, not just a sentence — it is the strongest
+           image on the site and the whole palette is drawn from it. */-->
+      <a class="hero__book-cover" href="/about#book">
+        <img src="/assets/cover-300.jpg"
+             srcset="/assets/cover-300.jpg 300w, /assets/cover-600.jpg 600w"
+             sizes="142px"
+             width="142" height="213" decoding="async"
+             alt="অশ্রুচুক্তি — শাহজাদা আল হাবীবের কাব্যগ্রন্থের প্রচ্ছদ" />
+      </a>
     </div>
   </div>
 </section>
@@ -61,8 +72,29 @@
 
   <section>
     <h2 class="section-title" th:text="#{home.latest}">সাম্প্রতিক লেখা</h2>
-    <div class="article-grid" th:if="${!latest.isEmpty()}">
-      <a class="article-card reveal" th:each="item : ${latest}" th:href="@{'/article/' + ${item.slug}}">
+
+    <!--/* The newest piece gets room to breathe. With only a handful of articles a row of
+         small equal cards reads as an empty shelf; one lead block reads as an invitation. */-->
+    <a class="lead-post reveal" th:if="${!latest.isEmpty()}"
+       th:classappend="${#strings.isEmpty(latest[0].imageUrl)} ? 'lead-post--no-image'"
+       th:href="@{'/article/' + ${latest[0].slug}}">
+      <div class="lead-post__media" th:if="${!#strings.isEmpty(latest[0].imageUrl)}">
+        <img th:src="${latest[0].imageUrl}" th:alt="${latest[0].imageAlt ?: latest[0].title}" />
+      </div>
+      <div class="lead-post__body">
+        <span class="category-badge" th:if="${!#strings.isEmpty(latest[0].category)}" th:text="${latest[0].category}">Category</span>
+        <h3 class="lead-post__title" th:text="${latest[0].title}">Title</h3>
+        <p class="lead-post__excerpt" th:if="${!#strings.isEmpty(latest[0].subtitle)}" th:text="${latest[0].subtitle}">Subtitle</p>
+        <div class="lead-post__meta">
+          <span th:text="${latest[0].publishDateDisplay}">Date</span>
+          <span th:text="${latest[0].viewCount} + ' ' + #{article.views}">0 views</span>
+        </div>
+        <span class="lead-post__more"><span th:text="#{home.readMore}">পড়ুন</span> &rarr;</span>
+      </div>
+    </a>
+
+    <div class="article-grid" th:if="${latest.size() > 1}">
+      <a class="article-card reveal" th:each="item, iter : ${latest}" th:if="${iter.index > 0}" th:href="@{'/article/' + ${item.slug}}">
         <div class="article-card__image" th:if="${!#strings.isEmpty(item.imageUrl)}">
           <img th:src="${item.imageUrl}" th:alt="${item.imageAlt ?: item.title}" />
         </div>
@@ -73,6 +105,7 @@
         </div>
       </a>
     </div>
+
     <div class="empty-state" th:if="${latest.isEmpty()}">
       <span th:text="#{home.empty}">এখনো কোনো লেখা প্রকাশিত হয়নি —</span> <a href="/admin">/admin</a> <span th:text="#{home.emptyAfter}">থেকে প্রথম লেখাটি যোগ করুন।</span>
     </div>

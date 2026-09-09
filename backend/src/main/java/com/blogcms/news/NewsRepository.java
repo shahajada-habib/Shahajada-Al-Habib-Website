@@ -160,6 +160,18 @@ public interface NewsRepository extends JpaRepository<News, Long> {
             @Param("excludeId") Long excludeId,
             Pageable pageable);
 
+    // Drives the public nav: a category with nothing published in it is hidden
+    // rather than offered as a link to an empty page.
+    @Query("""
+            SELECT DISTINCT n.category.slug FROM News n
+            WHERE n.status = :status
+              AND n.category IS NOT NULL
+              AND COALESCE(n.publishDate, n.scheduledAt, n.createdAt) <= :now
+            """)
+    List<String> findCategorySlugsWithVisiblePublished(
+            @Param("status") String status,
+            @Param("now") LocalDateTime now);
+
     Optional<News> findBySlug(String slug);
 
     Optional<News> findBySlugAndStatus(String slug, String status);

@@ -33,6 +33,9 @@
   <link rel="stylesheet" href="/css/style.css" />
   <script>
     (function () {
+      // Marks JS as available before first paint so the scroll-reveal CSS only
+      // hides content when there is a script that can reveal it again.
+      document.documentElement.className += (document.documentElement.className ? ' ' : '') + 'js';
       var saved = localStorage.getItem('site-theme');
       if (saved === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
@@ -59,7 +62,8 @@
     </div>
     <nav class="site-nav">
       <div class="container">
-        <ul>
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav-list">☰</button>
+        <ul id="site-nav-list">
           <li><a href="/" th:text="#{nav.home}">হোম</a></li>
           <li th:each="cat : ${navCategories}" th:if="${cat.slug != 'gallery'}">
             <a th:href="@{'/category/' + ${cat.slug}}" th:text="${cat.name}">Category</a>
@@ -95,22 +99,34 @@
   <script>
     (function () {
       var btn = document.getElementById('theme-toggle');
-      if (!btn) return;
-      function applyIcon() {
-        btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+      if (btn) {
+        (function () {
+          function applyIcon() {
+            btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+          }
+          applyIcon();
+          btn.addEventListener('click', function () {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+              document.documentElement.removeAttribute('data-theme');
+              localStorage.setItem('site-theme', 'light');
+            } else {
+              document.documentElement.setAttribute('data-theme', 'dark');
+              localStorage.setItem('site-theme', 'dark');
+            }
+            applyIcon();
+          });
+        })();
       }
-      applyIcon();
-      btn.addEventListener('click', function () {
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-          document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('site-theme', 'light');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('site-theme', 'dark');
-        }
-        applyIcon();
-      });
+
+      var navToggle = document.getElementById('nav-toggle');
+      var siteNav = document.querySelector('.site-nav');
+      if (navToggle && siteNav) {
+        navToggle.addEventListener('click', function () {
+          var open = siteNav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+      }
     })();
   </script>
 </footer>
