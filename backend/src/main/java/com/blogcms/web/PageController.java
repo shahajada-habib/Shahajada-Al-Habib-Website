@@ -15,6 +15,7 @@ import com.blogcms.cvrequest.CvRequestService;
 import com.blogcms.media.MediaAssetService;
 import com.blogcms.news.NewsResponseDto;
 import com.blogcms.news.NewsService;
+import com.blogcms.press.PressClippingService;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -39,12 +40,14 @@ public class PageController {
 
     private static final int PAGE_SIZE = 10;
     private static final int RELATED_LIMIT = 4;
+    private static final int PRESS_HOME_LIMIT = 4;
 
     private final NewsService newsService;
     private final CategoryRepository categoryRepository;
     private final CommentService commentService;
     private final CvRequestService cvRequestService;
     private final MediaAssetService mediaAssetService;
+    private final PressClippingService pressClippingService;
     private final MessageSource messageSource;
     private final String siteUrl;
 
@@ -54,6 +57,7 @@ public class PageController {
             CommentService commentService,
             CvRequestService cvRequestService,
             MediaAssetService mediaAssetService,
+            PressClippingService pressClippingService,
             MessageSource messageSource,
             @Value("${app.site-url:}") String siteUrl) {
         this.siteUrl = siteUrl.endsWith("/") ? siteUrl.substring(0, siteUrl.length() - 1) : siteUrl;
@@ -62,6 +66,7 @@ public class PageController {
         this.commentService = commentService;
         this.cvRequestService = cvRequestService;
         this.mediaAssetService = mediaAssetService;
+        this.pressClippingService = pressClippingService;
         this.messageSource = messageSource;
     }
 
@@ -80,6 +85,8 @@ public class PageController {
         model.addAttribute("pageImage", (Object) null);
         // Share bots need absolute canonical/og URLs; templates prepend this to the page path.
         model.addAttribute("siteUrl", siteUrl);
+        // The press link only earns a nav slot once there is something behind it.
+        model.addAttribute("hasPress", pressClippingService.hasPublished());
         // Only the article page is a real og:type=article; everything else is a site page.
         model.addAttribute("pageType", "website");
     }
@@ -93,6 +100,7 @@ public class PageController {
         // (e.g. with only one published article total).
         model.addAttribute("featured", featured.size() < latest.content().size() ? featured : List.of());
         model.addAttribute("latest", latest.content());
+        model.addAttribute("pressClippings", pressClippingService.getPublished(PRESS_HOME_LIMIT));
         model.addAttribute("pageTitle", msg("nav.home", locale));
         model.addAttribute("pageDescription", msg("page.home.description", locale));
         model.addAttribute("pageUrl", "/");
@@ -198,6 +206,16 @@ public class PageController {
         model.addAttribute("pageDescription", msg("gallery.subtitle", locale));
         model.addAttribute("pageUrl", "/gallery");
         return "gallery";
+    }
+
+    @GetMapping("/press")
+    public String press(Model model, Locale locale) {
+        model.addAttribute("clippings", pressClippingService.getPublished());
+        model.addAttribute("kinds", pressClippingService.getKindsInUse());
+        model.addAttribute("pageTitle", msg("press.title", locale));
+        model.addAttribute("pageDescription", msg("press.subtitle", locale));
+        model.addAttribute("pageUrl", "/press");
+        return "press";
     }
 
     @GetMapping({"/admin", "/admin/"})

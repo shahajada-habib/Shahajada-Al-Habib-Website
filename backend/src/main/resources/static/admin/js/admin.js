@@ -57,6 +57,7 @@ function showDashboard() {
   loadArticles();
   loadComments();
   loadCvRequests();
+  loadPress();
   loadCategories();
   loadMedia();
 }
@@ -70,6 +71,18 @@ document.querySelectorAll("[data-tab]").forEach((btn) => {
     document.getElementById(btn.dataset.tab + "-panel").classList.add("active");
   });
 });
+
+// Press clippings carry title/summary text scraped from other people's sites,
+// so anything from that path is escaped before it reaches innerHTML.
+function escapeHtml(value) {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 function statusBadge(status) {
   return `<span class="badge ${status}">${status}</span>`;
@@ -540,4 +553,144 @@ document.getElementById("change-password-form").addEventListener("submit", async
 
 if (isLoggedIn()) {
   showDashboard();
+}
+
+// ---- press clippings ----
+const PRESS_KIND_LABELS = {
+  feature: "ফিচার",
+  report: "রিপোর্ট",
+  literature: "সাহিত্য",
+  column: "কলাম/মতামত",
+  interview: "সাক্ষাৎকার",
+  travel: "ভ্রমণ",
+  photography: "ফটোগ্রাফি",
+};
+
+const pressForm = document.getElementById("press-form");
+
+function pressFormValues() {
+  const fd = new FormData(pressForm);
+  return {
+    title: fd.get("title"),
+    publication: fd.get("publication"),
+    url: fd.get("url"),
+    summary: fd.get("summary"),
+    imageUrl: fd.get("imageUrl"),
+    publishedOn: fd.get("publishedOn") || null,
+    kind: fd.get("kind") || "feature",
+    status: fd.get("status") || "active",
+  };
+}
+
+function resetPressForm() {
+  pressForm.reset();
+  pressForm.querySelector("[name=id]").value = "";
+  document.getElementById("press-form-error").textContent = "";
+  document.getElementById("press-preview-note").textContent = "";
+}
+
+// Ask the server to read the linked page's Open Graph tags and fill the form.
+document.getElementById("press-fetch-btn").addEventListener("click", async () => {
+  const note = document.getElementById("press-preview-note");
+  const errorEl = document.getElementById("press-form-error");
+  const url = pressForm.querySelector("[name=url]").value.trim();
+  errorEl.textContent = "";
+  if (!url) {
+    errorEl.textContent = "আগে লিংকটি দিন।";
+    return;
+  }
+  note.textContent = "লিংক পড়া হচ্ছে...";
+  try {
+    const preview = await apiRequest("/api/admin/press/preview", { method: "POST", body: { url } });
+    const setIfEmpty = (name, value) => {
+      const field = pressForm.querySelector("[name=" + name + "]");
+      if (field && value && !field.value.trim()) field.value = value;
+    };
+    // Only fills blanks, so a correction you typed is never overwritten.
+    setIfEmpty("title", preview.title);
+    setIfEmpty("publication", preview.publication);
+    setIfEmpty("summary", preview.summary);
+    setIfEmpty("imageUrl", preview.imageUrl);
+    setIfEmpty("publishedOn", preview.publishedOn);
+    note.textContent = "তথ্য এসেছে — দরকার হলে ঠিক করে নিন, তারপর সংরক্ষণ করুন।";
+  } catch (err) {
+    note.textContent = "";
+    errorEl.textContent = err.message || "লিংকটি পড়া গেল না — তথ্যগুলো হাতে লিখে দিন।";
+  }
+});
+
+pressForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById("press-form-error");
+  errorEl.textContent = "";
+  const id = pressForm.querySelector("[name=id]").value;
+  try {
+    await apiRequest("/api/admin/press" + (id ? "/" + id : ""), {
+      method: id ? "PUT" : "POST",
+      body: pressFormValues(),
+    });
+    resetPressForm();
+    loadPress();
+  } catch (err) {
+    errorEl.textContent = err.message || "সংরক্ষণ করা গেল না।";
+  }
+});
+
+document.getElementById("press-cancel-btn").addEventListener("click", resetPressForm);
+
+async function loadPress() {
+  const wrap = document.getElementById("press-table-wrap");
+  wrap.innerHTML = `<p style="color:var(--text-muted)">Loading...</p>`;
+  try {
+    const items = await apiRequest("/api/admin/press");
+    if (!items.length) {
+      wrap.innerHTML = `<div class="empty-state">এখনো কোনো লিংক যোগ করা হয়নি।</div>`;
+      return;
+    }
+    wrap.innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>তারিখ</th><th>পত্রিকা</th><th>ধরন</th><th>শিরোনাম</th><th>অবস্থা</th><th></th></tr></thead>
+        <tbody>
+          ${items.map((p) => `
+            <tr>
+              <td>${escapeHtml(p.publishedOn || "—")}</td>
+              <td>${escapeHtml(p.publication)}</td>
+              <td>${escapeHtml(PRESS_KIND_LABELS[p.kind] || p.kind)}</td>
+              <td><a href="${encodeURI(p.url)}" target="_blank" rel="noopener">${escapeHtml(p.title)}</a></td>
+              <td>${statusBadge(p.status)}</td>
+              <td class="table-actions">
+                <button class="btn btn--ghost btn--sm" data-press-edit="${p.id}">সম্পাদনা</button>
+                <button class="btn btn--danger btn--sm" data-press-delete="${p.id}">মুছুন</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    wrap.querySelectorAll("[data-press-edit]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const item = items.find((p) => String(p.id) === btn.dataset.pressEdit);
+        if (!item) return;
+        pressForm.querySelector("[name=id]").value = item.id;
+        pressForm.querySelector("[name=title]").value = item.title || "";
+        pressForm.querySelector("[name=publication]").value = item.publication || "";
+        pressForm.querySelector("[name=url]").value = item.url || "";
+        pressForm.querySelector("[name=summary]").value = item.summary || "";
+        pressForm.querySelector("[name=imageUrl]").value = item.imageUrl || "";
+        pressForm.querySelector("[name=publishedOn]").value = item.publishedOn || "";
+        pressForm.querySelector("[name=kind]").value = item.kind || "feature";
+        pressForm.querySelector("[name=status]").value = item.status || "active";
+        pressForm.scrollIntoView({ behavior: "smooth" });
+      });
+    });
+    wrap.querySelectorAll("[data-press-delete]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("এই লিংকটি মুছে ফেলবেন?")) return;
+        await apiRequest("/api/admin/press/" + btn.dataset.pressDelete, { method: "DELETE" });
+        loadPress();
+      });
+    });
+  } catch (err) {
+    wrap.innerHTML = `<p class="form-error">${escapeHtml(err.message || "লোড করা গেল না।")}</p>`;
+  }
 }

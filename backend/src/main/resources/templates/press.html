@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle}, ${pageDescription}, ${pageImage}, ${pageUrl})}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <h1 class="section-title" th:text="#{press.title}">সংবাদপত্রে প্রকাশিত</h1>
+  <p class="page-lede" th:text="#{press.subtitle}">বিভিন্ন পত্রিকা ও সাময়িকীতে প্রকাশিত আমার লেখা</p>
+
+  <!--/* Only worth a filter row once there is more than one kind to filter by.
+       Every card stays in the DOM and the chips just hide rows, so search
+       engines still see the whole list on one server-rendered page. */-->
+  <div class="kind-filter" th:if="${kinds.size() > 1}">
+    <button type="button" class="kind-chip is-active" data-kind="all" th:text="#{press.allKinds}">সব</button>
+    <button type="button" class="kind-chip" th:each="k : ${kinds}"
+            th:attr="data-kind=${k}" th:text="#{'press.kind.' + ${k}}">ধরন</button>
+  </div>
+
+  <div class="press-list" th:if="${!clippings.isEmpty()}">
+    <!--/* rel="noopener" plus target=_blank: these all point at other people's sites. */-->
+    <a class="press-card reveal" th:each="item : ${clippings}"
+       th:classappend="${#strings.isEmpty(item.imageUrl)} ? 'press-card--no-image'"
+       th:attr="data-kind=${item.kind}"
+       th:href="${item.url}" target="_blank" rel="noopener">
+      <div class="press-card__thumb" th:if="${!#strings.isEmpty(item.imageUrl)}">
+        <!--/* The paper's own image, hotlinked rather than rehosted. Papers that block
+             hotlinking (The Daily Star does) simply lose the thumbnail — the script
+             below collapses the card to text so no empty column is left behind. */-->
+        <img th:src="${item.imageUrl}" th:alt="${item.title}" loading="lazy" />
+      </div>
+      <div class="press-card__body">
+        <div class="press-card__tags">
+          <span class="press-card__publication" th:text="${item.publication}">পত্রিকা</span>
+          <span class="press-card__kind" th:text="#{'press.kind.' + ${item.kind}}">ধরন</span>
+        </div>
+        <h2 class="press-card__title" th:text="${item.title}">শিরোনাম</h2>
+        <p class="press-card__summary" th:if="${!#strings.isEmpty(item.summary)}" th:text="${item.summary}">সারসংক্ষেপ</p>
+        <div class="press-card__meta">
+          <span th:if="${item.publishedOn != null}"
+                th:text="${#temporals.format(item.publishedOn, 'd MMMM, yyyy')}">তারিখ</span>
+          <span class="press-card__link"><span th:text="#{press.readOriginal}">মূল লেখা পড়ুন</span> &rarr;</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="empty-state" th:if="${clippings.isEmpty()}" th:text="#{press.empty}">এখনো কোনো লেখা যোগ করা হয়নি।</div>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<script src="/js/reveal.js"></script>
+<script>
+  (function () {
+    // A linked paper can block hotlinking or move the file at any time. When that
+    // happens, drop the broken thumbnail and let the card go full-width instead of
+    // leaving a blank image column.
+    document.querySelectorAll('.press-card__thumb img').forEach(function (img) {
+      img.addEventListener('error', function () {
+        var card = img.closest('.press-card');
+        var thumb = img.closest('.press-card__thumb');
+        if (card) { card.classList.add('press-card--no-image'); }
+        if (thumb) { thumb.remove(); }
+      });
+    });
+
+    var chips = document.querySelectorAll('.kind-chip');
+    var cards = document.querySelectorAll('.press-card');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var kind = chip.dataset.kind;
+        chips.forEach(function (c) { c.classList.toggle('is-active', c === chip); });
+        cards.forEach(function (card) {
+          card.hidden = kind !== 'all' && card.dataset.kind !== kind;
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

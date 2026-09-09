@@ -68,6 +68,7 @@
           <li th:each="cat : ${navCategories}" th:if="${cat.slug != 'gallery'}">
             <a th:href="@{'/category/' + ${cat.slug}}" th:text="${cat.name}">Category</a>
           </li>
+          <li th:if="${hasPress}"><a href="/press" th:text="#{nav.press}">সংবাদপত্রে</a></li>
           <li><a href="/gallery" th:text="#{nav.gallery}">গ্যালারি</a></li>
           <li><a href="/about" th:text="#{nav.about}">আমার সম্পর্কে</a></li>
           <li><a href="https://shahajada-habib.github.io/portfolio/" target="_blank" rel="noopener" th:text="#{nav.portfolio}">টেক প্রোফাইল</a></li>
