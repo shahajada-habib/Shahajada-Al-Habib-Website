@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": [
+        "-f",
+        "backend/pom.xml",
+        "spring-boot:run",
+        "-Dspring-boot.run.jvmArguments=-DSEED_DEFAULT_USERS_ENABLED=true"
+      ],
+      "port": 8083
+    }
+  ]
+}

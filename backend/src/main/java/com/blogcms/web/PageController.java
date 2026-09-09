@@ -3,6 +3,7 @@ package com.blogcms.web;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import com.blogcms.category.Category;
 import com.blogcms.category.CategoryRepository;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -68,7 +71,12 @@ public class PageController {
 
     @ModelAttribute
     public void addSharedAttributes(Model model) {
-        model.addAttribute("navCategories", categoryRepository.findByStatusOrderByIdAsc("active"));
+        // Only surface categories a reader can actually get something from — an
+        // "empty category" page in the nav makes a young site look abandoned.
+        Set<String> populated = newsService.getCategorySlugsWithPublishedNews();
+        model.addAttribute("navCategories", categoryRepository.findByStatusOrderByIdAsc("active").stream()
+                .filter((category) -> populated.contains(category.getSlug()))
+                .toList());
         model.addAttribute("pageImage", (Object) null);
         // Share bots need absolute canonical/og URLs; templates prepend this to the page path.
         model.addAttribute("siteUrl", siteUrl);
@@ -95,7 +103,7 @@ public class PageController {
     public String category(@PathVariable String slug, @RequestParam(defaultValue = "0") int page, Model model) {
         Category category = categoryRepository.findBySlug(slug).orElse(null);
         if (category == null) {
-            return "redirect:/";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         PageResponse<NewsResponseDto> result = newsService.getPublishedNewsByCategory(slug, page, PAGE_SIZE);
@@ -114,7 +122,7 @@ public class PageController {
     public String article(@PathVariable String slug, Model model) {
         Optional<NewsResponseDto> articleOpt = newsService.getPublishedNewsBySlug(slug);
         if (articleOpt.isEmpty()) {
-            return "redirect:/";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         NewsResponseDto article = newsService.incrementViewCount(articleOpt.get().getId()).orElse(articleOpt.get());
 

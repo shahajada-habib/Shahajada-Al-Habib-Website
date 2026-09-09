@@ -179,6 +179,12 @@ public class NewsService {
                 .map(this::toResponseDto);
     }
 
+    /** Slugs of categories that actually have something published in them right now. */
+    public Set<String> getCategorySlugsWithPublishedNews() {
+        return new LinkedHashSet<>(
+                newsRepository.findCategorySlugsWithVisiblePublished(NewsStatus.PUBLISHED, LocalDateTime.now()));
+    }
+
     public PageResponse<NewsResponseDto> getPublishedNewsByCategory(String categorySlug, Integer page, Integer size) {
         Page<News> newsPage = newsRepository.findVisiblePublishedByCategory(
                 NewsStatus.PUBLISHED,
