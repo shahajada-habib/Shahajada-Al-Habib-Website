@@ -111,6 +111,24 @@
     </div>
   </section>
 
+  <!--/* Work published elsewhere. These link straight out to the paper, so they are
+       kept apart from the site's own writing rather than mixed into the list above. */-->
+  <section th:if="${!pressClippings.isEmpty()}">
+    <div class="section-head">
+      <h2 class="section-title" th:text="#{press.title}">সংবাদপত্রে প্রকাশিত</h2>
+      <a class="section-head__more" href="/press"><span th:text="#{press.viewAll}">সব দেখুন</span> &rarr;</a>
+    </div>
+    <div class="press-strip">
+      <a class="press-chip reveal" th:each="item : ${pressClippings}"
+         th:href="${item.url}" target="_blank" rel="noopener">
+        <span class="press-chip__publication" th:text="${item.publication}">পত্রিকা</span>
+        <span class="press-chip__title" th:text="${item.title}">শিরোনাম</span>
+        <span class="press-chip__date" th:if="${item.publishedOn != null}"
+              th:text="${#temporals.format(item.publishedOn, 'd MMMM, yyyy')}">তারিখ</span>
+      </a>
+    </div>
+  </section>
+
   <!--/* Both embeds are click-to-load facades. The Facebook SDK and the YouTube player
        together cost ~1.5s and set third-party cookies on every visit, so nothing from
        facebook.com or youtube.com is requested until the reader actually asks for it. */-->

@@ -46,6 +46,7 @@
       <button class="tab-btn" data-tab="articles">লেখা</button>
       <button class="tab-btn" data-tab="comments">মন্তব্য</button>
       <button class="tab-btn" data-tab="cv-requests">সিভি অনুরোধ</button>
+      <button class="tab-btn" data-tab="press">সংবাদপত্রে</button>
       <button class="tab-btn" data-tab="categories">ক্যাটাগরি</button>
       <button class="tab-btn" data-tab="media">মিডিয়া লাইব্রেরি</button>
       <button class="tab-btn" data-tab="settings">সেটিংস</button>
@@ -178,6 +179,59 @@
       <div id="cv-requests-table-wrap"></div>
     </div>
 
+
+    <!-- Press clippings -->
+    <div class="tab-panel" id="press-panel">
+      <div class="admin-panel-head">
+        <h2>সংবাদপত্রে প্রকাশিত</h2>
+      </div>
+      <p class="form-note">পত্রিকায় প্রকাশিত লেখার লিংক দিন। "লিংক থেকে তথ্য আনুন" চাপলে শিরোনাম, ছবি ও সারসংক্ষেপ নিজে থেকেই বসে যাবে — খালি ঘরগুলোতে। না এলে হাতে লিখে দিন।</p>
+
+      <form id="press-form" class="admin-form-card open">
+        <input type="hidden" name="id">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>লেখার লিংক <button type="button" class="btn btn--ghost btn--sm" id="press-fetch-btn" style="margin-left:8px;">লিংক থেকে তথ্য আনুন</button></label>
+            <input type="url" name="url" required placeholder="https://www.prothomalo.com/...">
+            <p class="form-note" id="press-preview-note"></p>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>শিরোনাম</label>
+            <input type="text" name="title" required maxlength="300">
+          </div>
+          <div class="form-group">
+            <label>পত্রিকার নাম</label>
+            <input type="text" name="publication" required maxlength="160" placeholder="প্রথম আলো">
+          </div>
+          <div class="form-group">
+            <label>প্রকাশের তারিখ</label>
+            <input type="date" name="publishedOn">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>সারসংক্ষেপ (ঐচ্ছিক)</label>
+            <textarea name="summary" rows="3" maxlength="2000"></textarea>
+          </div>
+          <div class="form-group">
+            <label>ছবির লিংক (ঐচ্ছিক)</label>
+            <input type="text" name="imageUrl" maxlength="1000">
+          </div>
+          <div class="form-group">
+            <label>অবস্থা</label>
+            <select name="status">
+              <option value="active">সাইটে দেখান</option>
+              <option value="hidden">লুকিয়ে রাখুন</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="submit" class="btn btn--primary btn--sm">সংরক্ষণ করুন</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="press-cancel-btn">বাতিল</button>
+        </div>
+        <p class="form-error" id="press-form-error"></p>
+      </form>
+
+      <div id="press-table-wrap"></div>
+    </div>
     <!-- Categories -->
     <div class="tab-panel" id="categories-panel">
       <div class="admin-panel-head"><h2>ক্যাটাগরি</h2></div>
