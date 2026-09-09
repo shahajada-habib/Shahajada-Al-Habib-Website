@@ -556,6 +556,16 @@ if (isLoggedIn()) {
 }
 
 // ---- press clippings ----
+const PRESS_KIND_LABELS = {
+  feature: "ফিচার",
+  report: "রিপোর্ট",
+  literature: "সাহিত্য",
+  column: "কলাম/মতামত",
+  interview: "সাক্ষাৎকার",
+  travel: "ভ্রমণ",
+  photography: "ফটোগ্রাফি",
+};
+
 const pressForm = document.getElementById("press-form");
 
 function pressFormValues() {
@@ -567,6 +577,7 @@ function pressFormValues() {
     summary: fd.get("summary"),
     imageUrl: fd.get("imageUrl"),
     publishedOn: fd.get("publishedOn") || null,
+    kind: fd.get("kind") || "feature",
     status: fd.get("status") || "active",
   };
 }
@@ -638,12 +649,13 @@ async function loadPress() {
     }
     wrap.innerHTML = `
       <table class="data-table">
-        <thead><tr><th>তারিখ</th><th>পত্রিকা</th><th>শিরোনাম</th><th>অবস্থা</th><th></th></tr></thead>
+        <thead><tr><th>তারিখ</th><th>পত্রিকা</th><th>ধরন</th><th>শিরোনাম</th><th>অবস্থা</th><th></th></tr></thead>
         <tbody>
           ${items.map((p) => `
             <tr>
               <td>${escapeHtml(p.publishedOn || "—")}</td>
               <td>${escapeHtml(p.publication)}</td>
+              <td>${escapeHtml(PRESS_KIND_LABELS[p.kind] || p.kind)}</td>
               <td><a href="${encodeURI(p.url)}" target="_blank" rel="noopener">${escapeHtml(p.title)}</a></td>
               <td>${statusBadge(p.status)}</td>
               <td class="table-actions">
@@ -666,6 +678,7 @@ async function loadPress() {
         pressForm.querySelector("[name=summary]").value = item.summary || "";
         pressForm.querySelector("[name=imageUrl]").value = item.imageUrl || "";
         pressForm.querySelector("[name=publishedOn]").value = item.publishedOn || "";
+        pressForm.querySelector("[name=kind]").value = item.kind || "feature";
         pressForm.querySelector("[name=status]").value = item.status || "active";
         pressForm.scrollIntoView({ behavior: "smooth" });
       });

@@ -37,6 +37,16 @@ public class PressClippingService {
                 PressClipping.ACTIVE, PageRequest.of(0, limit));
     }
 
+    /**
+     * The kinds that actually have something behind them, in PressKind order.
+     * The page shows filter chips only when more than one kind is represented —
+     * a filter row over a single group is just noise.
+     */
+    public List<String> getKindsInUse() {
+        List<String> used = repository.findKindsInUse(PressClipping.ACTIVE);
+        return PressKind.ALL.stream().filter(used::contains).toList();
+    }
+
     public boolean hasPublished() {
         return repository.countByStatus(PressClipping.ACTIVE) > 0;
     }
@@ -77,6 +87,7 @@ public class PressClippingService {
         clipping.setSummary(validator.optional(request.getSummary(), 2000));
         clipping.setImageUrl(validator.optional(request.getImageUrl(), 1000));
         clipping.setPublishedOn(request.getPublishedOn());
+        clipping.setKind(PressKind.normalize(request.getKind()));
         clipping.setStatus(PressClipping.HIDDEN.equals(request.getStatus())
                 ? PressClipping.HIDDEN
                 : PressClipping.ACTIVE);

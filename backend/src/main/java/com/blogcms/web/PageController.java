@@ -211,6 +211,7 @@ public class PageController {
     @GetMapping("/press")
     public String press(Model model, Locale locale) {
         model.addAttribute("clippings", pressClippingService.getPublished());
+        model.addAttribute("kinds", pressClippingService.getKindsInUse());
         model.addAttribute("pageTitle", msg("press.title", locale));
         model.addAttribute("pageDescription", msg("press.subtitle", locale));
         model.addAttribute("pageUrl", "/press");

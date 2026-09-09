@@ -11,6 +11,7 @@ public class PressClippingDto {
     private String summary;
     private String imageUrl;
     private LocalDate publishedOn;
+    private String kind;
     private String status;
 
     public String getTitle() {
@@ -59,6 +60,14 @@ public class PressClippingDto {
 
     public void setPublishedOn(LocalDate publishedOn) {
         this.publishedOn = publishedOn;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 
     public String getStatus() {

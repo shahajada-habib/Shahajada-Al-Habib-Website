@@ -51,6 +51,10 @@ public class PressClipping {
 
     private LocalDate publishedOn;
 
+    /** One of {@link PressKind#ALL}. */
+    @Column(nullable = false, length = 32)
+    private String kind = PressKind.DEFAULT;
+
     /** active | hidden */
     @Column(nullable = false, length = 32)
     private String status = ACTIVE;
@@ -115,6 +119,14 @@ public class PressClipping {
         this.publishedOn = publishedOn;
     }
 
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -145,6 +157,9 @@ public class PressClipping {
         updatedAt = createdAt;
         if (status == null || status.isBlank()) {
             status = ACTIVE;
+        }
+        if (kind == null || kind.isBlank()) {
+            kind = PressKind.DEFAULT;
         }
     }
 

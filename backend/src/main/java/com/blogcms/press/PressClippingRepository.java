@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PressClippingRepository extends JpaRepository<PressClipping, Long> {
 
@@ -16,4 +18,7 @@ public interface PressClippingRepository extends JpaRepository<PressClipping, Lo
     List<PressClipping> findAllByOrderByPublishedOnDescIdDesc();
 
     long countByStatus(String status);
+
+    @Query("SELECT DISTINCT p.kind FROM PressClipping p WHERE p.status = :status")
+    List<String> findKindsInUse(@Param("status") String status);
 }
