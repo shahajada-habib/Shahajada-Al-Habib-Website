@@ -589,16 +589,23 @@ function resetPressForm() {
   document.getElementById("press-preview-note").textContent = "";
 }
 
-// Ask the server to read the linked page's Open Graph tags and fill the form.
-document.getElementById("press-fetch-btn").addEventListener("click", async () => {
+// Read the linked page's Open Graph tags and fill the blank fields. Runs on its
+// own when you leave the URL box (auto === true) and on the button (auto === false).
+let pressPreviewedUrl = "";
+async function runPressPreview(auto) {
   const note = document.getElementById("press-preview-note");
   const errorEl = document.getElementById("press-form-error");
   const url = pressForm.querySelector("[name=url]").value.trim();
-  errorEl.textContent = "";
-  if (!url) {
-    errorEl.textContent = "আগে লিংকটি দিন।";
+
+  if (!/^https?:\/\/\S+\.\S+/.test(url)) {
+    if (!auto) errorEl.textContent = "আগে একটি সঠিক লিংক দিন।";
     return;
   }
+  // Don't re-fetch the same URL every time the box loses focus.
+  if (auto && url === pressPreviewedUrl) return;
+  pressPreviewedUrl = url;
+
+  errorEl.textContent = "";
   note.textContent = "লিংক পড়া হচ্ছে...";
   try {
     const preview = await apiRequest("/api/admin/press/preview", { method: "POST", body: { url } });
@@ -612,12 +619,23 @@ document.getElementById("press-fetch-btn").addEventListener("click", async () =>
     setIfEmpty("summary", preview.summary);
     setIfEmpty("imageUrl", preview.imageUrl);
     setIfEmpty("publishedOn", preview.publishedOn);
-    note.textContent = "তথ্য এসেছে — দরকার হলে ঠিক করে নিন, তারপর সংরক্ষণ করুন।";
+    const gotImage = !!(preview.imageUrl && preview.imageUrl.trim());
+    note.textContent = gotImage
+      ? "তথ্য এসেছে (ছবিসহ) — দরকার হলে ঠিক করে সংরক্ষণ করুন।"
+      : "তথ্য এসেছে, তবে এই সাইট থেকে ছবি পাওয়া যায়নি — চাইলে ছবির লিংক হাতে দিন।";
   } catch (err) {
     note.textContent = "";
-    errorEl.textContent = err.message || "লিংকটি পড়া গেল না — তথ্যগুলো হাতে লিখে দিন।";
+    // A failed auto-fetch stays quiet so you can just keep typing by hand.
+    if (!auto) errorEl.textContent = err.message || "লিংকটি পড়া গেল না — তথ্যগুলো হাতে লিখে দিন।";
+    else note.textContent = "লিংক থেকে তথ্য আনা গেল না — হাতে লিখে দিন।";
+    pressPreviewedUrl = "";
   }
-});
+}
+
+document.getElementById("press-fetch-btn").addEventListener("click", () => runPressPreview(false));
+// 'change' fires when the field loses focus after an edit — the natural "I've
+// pasted the link" moment, so the preview just happens.
+pressForm.querySelector("[name=url]").addEventListener("change", () => runPressPreview(true));
 
 pressForm.addEventListener("submit", async (e) => {
   e.preventDefault();
