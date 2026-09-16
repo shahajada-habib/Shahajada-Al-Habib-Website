@@ -120,11 +120,20 @@
     </div>
     <div class="press-strip">
       <a class="press-chip reveal" th:each="item : ${pressClippings}"
+         th:classappend="${#strings.isEmpty(item.imageUrl)} ? 'press-chip--no-image'"
          th:href="${item.url}" target="_blank" rel="noopener">
-        <span class="press-chip__publication" th:text="${item.publication}">পত্রিকা</span>
-        <span class="press-chip__title" th:text="${item.title}">শিরোনাম</span>
-        <span class="press-chip__date" th:if="${item.publishedOn != null}"
-              th:text="${#temporals.format(item.publishedOn, 'd MMMM, yyyy')}">তারিখ</span>
+        <!--/* Same hotlink-with-fallback approach as the /press cards: if the paper's
+             image 404s or is blocked, the onerror script below drops the thumbnail
+             and the chip just goes text-only rather than showing a broken image. */-->
+        <div class="press-chip__thumb" th:if="${!#strings.isEmpty(item.imageUrl)}">
+          <img th:src="${item.imageUrl}" th:alt="${item.title}" loading="lazy" />
+        </div>
+        <div class="press-chip__body">
+          <span class="press-chip__publication" th:text="${item.publication}">পত্রিকা</span>
+          <span class="press-chip__title" th:text="${item.title}">শিরোনাম</span>
+          <span class="press-chip__date" th:if="${item.publishedOn != null}"
+                th:text="${#temporals.format(item.publishedOn, 'd MMMM, yyyy')}">তারিখ</span>
+        </div>
       </a>
     </div>
   </section>
@@ -173,6 +182,19 @@
 
 <div th:replace="~{fragments/layout :: footer}"></div>
 <script src="/js/reveal.js"></script>
+<script>
+  // A linked paper can block hotlinking or move the file at any time (The Daily
+  // Star does). Drop the thumbnail and let the chip go text-only rather than
+  // showing a broken image icon.
+  document.querySelectorAll('.press-chip__thumb img').forEach(function (img) {
+    img.addEventListener('error', function () {
+      var chip = img.closest('.press-chip');
+      var thumb = img.closest('.press-chip__thumb');
+      if (chip) { chip.classList.add('press-chip--no-image'); }
+      if (thumb) { thumb.remove(); }
+    });
+  });
+</script>
 <script>
   // Swap a facade for the real embed on click, loading the vendor script only then.
   (function () {
