@@ -72,11 +72,17 @@ Save: `Ctrl+O`, `Enter`, `Ctrl+X`.
 
 ---
 
-## 4. Build and start
+## 4. Pull the image and start
 ```
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 ```
-The first build runs Maven inside Docker and takes **5–10 minutes** on this VM.
+GitHub Actions builds the image on every push to `master` and publishes it to
+GHCR (`.github/workflows/build-and-push.yml`); this step only downloads it —
+no Maven, no compiling, on the VM itself. Compiling here once pushed this 1 GB
+box into swap badly enough that a routine deploy took over 5 minutes to boot
+(2026-09-16), which is why the VM never builds anymore.
+
 Watch it come up:
 ```
 docker compose logs -f web
@@ -84,8 +90,8 @@ docker compose logs -f web
 Wait for a line like `Started BlogCmsApplication in N seconds`. `Ctrl+C` stops
 following the logs (the container keeps running).
 
-If it dies with an out-of-memory error during build: swap isn't active (redo
-step 1) or fall back to **Appendix A** (build on your PC, copy the image over).
+If `docker compose pull` can't reach GHCR: fall back to **Appendix A** (build
+on your PC, copy the image over).
 
 ---
 
@@ -117,7 +123,7 @@ Then open `http://<VM_EXTERNAL_IP>` in a browser — the site should load, and
 
 | Task | Command (run from `~/Shahajada-Al-Habib-Website/deploy`) |
 |------|------|
-| Deploy latest code | `git pull && docker compose up -d --build` |
+| Deploy latest code | `git pull && docker compose pull && docker compose up -d` |
 | View logs | `docker compose logs -f web` |
 | Restart | `docker compose restart web` |
 | Stop everything | `docker compose down` |

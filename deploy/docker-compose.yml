@@ -2,10 +2,18 @@
 # container here on purpose — a 1 GB e2-micro cannot comfortably host MySQL +
 # the JVM.
 #
-# Milestone 1 (HTTP, current):
-#   cd deploy && cp .env.example .env && nano .env
-#   docker compose up -d --build
-#   -> app published on port 80, reachable at http://<VM_IP>
+# The image is built by GitHub Actions (.github/workflows/build-and-push.yml),
+# not on the VM: running `mvn clean package` here competed with the live app
+# for this box's 1 GB of RAM and pushed it into swap badly enough that a
+# routine deploy once took over 5 minutes to boot (2026-09-16). Day to day:
+#   git pull && docker compose pull && docker compose up -d
+# `docker compose pull` just downloads the finished image — no compiling.
+#
+# One-time fallback if GHCR is ever unreachable — build elsewhere and load it:
+#   docker build -t shahajada-site:local ./backend   (on a machine with RAM to spare)
+#   docker save shahajada-site:local | gzip > site.tar.gz && scp it to the VM
+#   gunzip -c site.tar.gz | docker load
+#   then set `image: shahajada-site:local` below in place of the ghcr.io tag
 #
 # Milestone 2 (HTTPS): point a DNS A record at this VM, open TCP 443, then
 #   git pull && bash enable-https.sh <domain>
@@ -17,10 +25,7 @@
 
 services:
   web:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    image: shahajada-site:local
+    image: ghcr.io/shahajada-habib/shahajada-al-habib-website:latest
     container_name: shahajada-site
     restart: unless-stopped
     env_file: .env
