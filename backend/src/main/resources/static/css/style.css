@@ -611,17 +611,20 @@ main.container > .section-title:first-child { margin-top: 42px; }
 .press-card__meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted); }
 .press-card__link { color: var(--crimson); font-weight: 700; }
 
-/* Home-page teaser strip — compact, no images, just enough to invite a click. */
+/* Home-page teaser strip — a small thumbnail up top when the clipping has one,
+   otherwise the crimson rule on the body carries it alone. */
 .press-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .press-chip {
-  display: flex; flex-direction: column; gap: 6px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-left: 3px solid var(--crimson);
-  border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 18px;
-  box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .press-chip:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.press-chip__thumb { aspect-ratio: 16/9; background: var(--surface-alt); overflow: hidden; }
+.press-chip__thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.press-chip:hover .press-chip__thumb img { transform: scale(1.06); }
+.press-chip__body { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; border-left: 3px solid var(--crimson); }
 .press-chip__publication { font-size: 0.74rem; font-weight: 700; color: var(--crimson); letter-spacing: 0.04em; }
 .press-chip__title { font-family: var(--font-display); font-weight: 700; color: var(--ink); line-height: 1.45; }
 .press-chip__date { font-size: 0.78rem; color: var(--text-muted); }
