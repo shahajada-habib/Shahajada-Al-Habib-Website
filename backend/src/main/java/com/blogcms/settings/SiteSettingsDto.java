@@ -4,6 +4,7 @@ package com.blogcms.settings;
 public class SiteSettingsDto {
 
     private String authorName;
+    private String authorNameEn;
     private String tagline;
     private String taglineEn;
     private String aboutBio;
@@ -17,8 +18,10 @@ public class SiteSettingsDto {
     private String facebookUrl;
     private String instagramUrl;
     private String youtubeUrl;
+    private String linkedinUrl;
     private boolean homeShowCategoryRow;
     private boolean homeShowSocialSection;
+    private String homeSpotlightCategorySlug;
     private boolean adsEnabled;
     private String adImageUrl;
     private String adLinkUrl;
@@ -27,6 +30,7 @@ public class SiteSettingsDto {
     public static SiteSettingsDto from(SiteSettings entity) {
         SiteSettingsDto dto = new SiteSettingsDto();
         dto.authorName = entity.getAuthorName();
+        dto.authorNameEn = entity.getAuthorNameEn();
         dto.tagline = entity.getTagline();
         dto.taglineEn = entity.getTaglineEn();
         dto.aboutBio = entity.getAboutBio();
@@ -40,8 +44,10 @@ public class SiteSettingsDto {
         dto.facebookUrl = entity.getFacebookUrl();
         dto.instagramUrl = entity.getInstagramUrl();
         dto.youtubeUrl = entity.getYoutubeUrl();
+        dto.linkedinUrl = entity.getLinkedinUrl();
         dto.homeShowCategoryRow = entity.isHomeShowCategoryRow();
         dto.homeShowSocialSection = entity.isHomeShowSocialSection();
+        dto.homeSpotlightCategorySlug = entity.getHomeSpotlightCategorySlug();
         dto.adsEnabled = entity.isAdsEnabled();
         dto.adImageUrl = entity.getAdImageUrl();
         dto.adLinkUrl = entity.getAdLinkUrl();
@@ -55,6 +61,14 @@ public class SiteSettingsDto {
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
+    }
+
+    public String getAuthorNameEn() {
+        return authorNameEn;
+    }
+
+    public void setAuthorNameEn(String authorNameEn) {
+        this.authorNameEn = authorNameEn;
     }
 
     public String getTagline() {
@@ -161,6 +175,14 @@ public class SiteSettingsDto {
         this.youtubeUrl = youtubeUrl;
     }
 
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
+    }
+
     public boolean isHomeShowCategoryRow() {
         return homeShowCategoryRow;
     }
@@ -175,6 +197,14 @@ public class SiteSettingsDto {
 
     public void setHomeShowSocialSection(boolean homeShowSocialSection) {
         this.homeShowSocialSection = homeShowSocialSection;
+    }
+
+    public String getHomeSpotlightCategorySlug() {
+        return homeSpotlightCategorySlug;
+    }
+
+    public void setHomeSpotlightCategorySlug(String homeSpotlightCategorySlug) {
+        this.homeSpotlightCategorySlug = homeSpotlightCategorySlug;
     }
 
     public boolean isAdsEnabled() {

@@ -151,8 +151,9 @@
           </div>
         </div>
 
-        <div style="display:flex; gap:20px; margin: 10px 0 16px;">
+        <div style="margin: 10px 0 16px;">
           <div class="checkbox-row"><input type="checkbox" name="featured" id="article-featured"><label for="article-featured">হোমপেজে ফিচার্ড করুন</label></div>
+          <p class="form-note">টিক দিলে এই লেখাটি হোমপেজের "নির্বাচিত লেখা" সেকশনে দেখাবে। কোনো লেখায় টিক না থাকলে এই সেকশনটিই হোমপেজে দেখা যাবে না।</p>
         </div>
 
         <div style="display:flex; gap:10px;">
@@ -295,9 +296,14 @@
       <form id="site-info-form" class="admin-form-card open">
         <h3 style="margin:4px 0 12px;">পরিচয়</h3>
         <div class="form-grid">
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label>নাম</label>
+          <div class="form-group">
+            <label>নাম (বাংলা)</label>
             <input type="text" name="authorName" required maxlength="160">
+          </div>
+          <div class="form-group">
+            <label>নাম (English)</label>
+            <input type="text" name="authorNameEn" maxlength="160" placeholder="Shahajada Al Habib">
+            <p class="form-note">খালি রাখলে ইংরেজি সাইটেও বাংলা নামটাই দেখাবে।</p>
           </div>
           <div class="form-group">
             <label>ট্যাগলাইন (বাংলা)</label>
@@ -360,13 +366,24 @@
             <label>YouTube</label>
             <input type="text" name="youtubeUrl" maxlength="500" placeholder="https://www.youtube.com/@...">
           </div>
+          <div class="form-group">
+            <label>LinkedIn</label>
+            <input type="text" name="linkedinUrl" maxlength="500" placeholder="https://www.linkedin.com/in/...">
+          </div>
         </div>
 
         <h3 style="margin:20px 0 12px;">হোমপেজ লেআউট</h3>
         <p class="form-note">কোড না ছুঁয়ে হোমপেজের এই অংশগুলো দেখাবে কিনা ঠিক করুন।</p>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
           <div class="checkbox-row"><input type="checkbox" name="homeShowCategoryRow" id="home-show-category-row"><label for="home-show-category-row">হিরোর নিচে ক্যাটাগরি সারি দেখান (কবিতা · গল্প · জার্নাল...)</label></div>
           <div class="checkbox-row"><input type="checkbox" name="homeShowSocialSection" id="home-show-social-section"><label for="home-show-social-section">"সামাজিক মাধ্যমে যুক্ত থাকুন" সেকশন দেখান</label></div>
+        </div>
+        <div class="form-group" style="max-width:420px;">
+          <label>হোমপেজে অতিরিক্ত একটা সেকশন (ঐচ্ছিক)</label>
+          <select name="homeSpotlightCategorySlug" id="home-spotlight-category">
+            <option value="">কোনোটি না</option>
+          </select>
+          <p class="form-note">একটা ক্যাটাগরি বেছে নিলে সেটার সাম্প্রতিক লেখাগুলো হোমপেজে নিজের একটা আলাদা সেকশনে দেখাবে — যেমন অনেক কবিতা জমলে "কবিতা" বেছে নিতে পারেন।</p>
         </div>
 
         <h3 style="margin:20px 0 12px;">বিজ্ঞাপন / স্পনসর</h3>

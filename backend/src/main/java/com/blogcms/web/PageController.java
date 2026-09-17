@@ -1,5 +1,6 @@
 package com.blogcms.web;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import com.blogcms.media.MediaAssetService;
 import com.blogcms.news.NewsResponseDto;
 import com.blogcms.news.NewsService;
 import com.blogcms.press.PressClippingService;
+import com.blogcms.settings.SiteSettings;
 import com.blogcms.settings.SiteSettingsService;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +45,7 @@ public class PageController {
     private static final int PAGE_SIZE = 10;
     private static final int RELATED_LIMIT = 4;
     private static final int PRESS_HOME_LIMIT = 4;
+    private static final int SPOTLIGHT_LIMIT = 6;
 
     private final NewsService newsService;
     private final CategoryRepository categoryRepository;
@@ -80,7 +83,7 @@ public class PageController {
     }
 
     @ModelAttribute
-    public void addSharedAttributes(Model model) {
+    public void addSharedAttributes(Model model, Locale locale) {
         // Only surface categories a reader can actually get something from — an
         // "empty category" page in the nav makes a young site look abandoned.
         Set<String> populated = newsService.getCategorySlugsWithPublishedNews();
@@ -92,7 +95,16 @@ public class PageController {
         model.addAttribute("siteUrl", siteUrl);
         // Author name, tagline, book details, social links — one place to edit
         // what used to be hardcoded across every template.
-        model.addAttribute("siteSettings", siteSettingsService.get());
+        SiteSettings settings = siteSettingsService.get();
+        model.addAttribute("siteSettings", settings);
+        // Every template used to read siteSettings.authorName directly, which is
+        // always the Bangla name — switching the site to English kept showing it
+        // because there was nowhere for an English name to live. This is the one
+        // place that picks the right one, so templates never repeat that choice.
+        boolean english = "en".equals(locale.getLanguage());
+        String authorNameEn = settings.getAuthorNameEn();
+        model.addAttribute("displayAuthorName",
+                english && authorNameEn != null && !authorNameEn.isBlank() ? authorNameEn : settings.getAuthorName());
         // The press link only earns a nav slot once there is something behind it.
         model.addAttribute("hasPress", pressClippingService.hasPublished());
         // Only the article page is a real og:type=article; everything else is a site page.
@@ -108,12 +120,35 @@ public class PageController {
         // (e.g. with only one published article total).
         boolean showFeatured = featured.size() < latest.content().size();
         model.addAttribute("featured", showFeatured ? featured : List.of());
-        // Whatever ran in Featured shouldn't also appear in Recent Writing right below it —
-        // same article, same page, two cards.
-        Set<Long> featuredIds = featured.stream().map(NewsResponseDto::getId).collect(Collectors.toSet());
-        List<NewsResponseDto> recent = showFeatured
-                ? latest.content().stream().filter((item) -> !featuredIds.contains(item.getId())).toList()
-                : latest.content();
+        Set<Long> excludedIds = new HashSet<>();
+        if (showFeatured) {
+            featured.forEach((item) -> excludedIds.add(item.getId()));
+        }
+
+        // An admin-chosen category (e.g. কবিতা, once there are enough poems to
+        // deserve their own shelf) gets its own homepage section — a no-code
+        // alternative to hardcoding which category is "special".
+        List<NewsResponseDto> spotlightArticles = List.of();
+        Category spotlightCategory = null;
+        String spotlightSlug = ((SiteSettings) model.getAttribute("siteSettings")).getHomeSpotlightCategorySlug();
+        if (spotlightSlug != null && !spotlightSlug.isBlank()) {
+            spotlightCategory = categoryRepository.findBySlug(spotlightSlug).orElse(null);
+            if (spotlightCategory != null) {
+                spotlightArticles = pageResponse(newsService.getPublishedNewsByCategory(spotlightSlug, 0, SPOTLIGHT_LIMIT)).content();
+                if (spotlightArticles.isEmpty()) {
+                    spotlightCategory = null;
+                }
+            }
+        }
+        model.addAttribute("spotlightCategory", spotlightCategory);
+        model.addAttribute("spotlightArticles", spotlightArticles);
+        spotlightArticles.forEach((item) -> excludedIds.add(item.getId()));
+
+        // Whatever ran in Featured or the spotlight section shouldn't also appear in
+        // Recent Writing right below them — same article, same page, repeated cards.
+        List<NewsResponseDto> recent = latest.content().stream()
+                .filter((item) -> !excludedIds.contains(item.getId()))
+                .toList();
         model.addAttribute("latest", recent);
         model.addAttribute("pressClippings", pressClippingService.getPublished(PRESS_HOME_LIMIT));
         model.addAttribute("pageTitle", msg("nav.home", locale));

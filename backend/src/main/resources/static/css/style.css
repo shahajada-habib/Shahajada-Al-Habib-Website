@@ -479,6 +479,20 @@ main.container > .section-title:first-child { margin-top: 42px; }
 .hero__quote cite { display: block; margin-top: 10px; font-style: normal; font-size: 0.82rem; color: var(--text-muted); }
 .hero__actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
+/* A long endorsement quote (hero__quote here, the book-panel quote on /about) can run to a
+   whole paragraph — clamp it to a few lines and let the reader ask for the rest, instead of
+   the quote alone eating half the screen on mobile. Collapsed by default; JS only reveals
+   the toggle button when the text actually overflows the clamp. */
+.quote-clamp {
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+[data-quote-clamp].is-expanded .quote-clamp { -webkit-line-clamp: unset; overflow: visible; }
+.quote-toggle {
+  display: none; margin-top: 10px; background: none; border: none; padding: 0; cursor: pointer;
+  font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--primary);
+}
+.quote-toggle:hover { text-decoration: underline; }
+
 .btn {
   display: inline-block; padding: 11px 26px; border-radius: 999px;
   font-family: inherit; font-weight: 700; font-size: 0.92rem;

@@ -54,14 +54,15 @@ function showDashboard() {
   initQuill();
   initAboutBioQuill();
   loadDashboard();
-  loadCategoriesForSelect();
   loadArticles();
   loadComments();
   loadCvRequests();
   loadPress();
   loadCategories();
   loadMedia();
-  loadSiteInfo();
+  // The homepage-spotlight <select> needs its category options in place before
+  // the saved settings are applied, or the saved slug has nothing to select.
+  loadCategoriesForSelect().then(loadSiteInfo);
 }
 
 // ---- tabs ----
@@ -134,6 +135,14 @@ async function loadCategoriesForSelect() {
   categoriesCache = await apiRequest("/api/categories");
   document.getElementById("article-category").innerHTML = categoriesCache
     .map((c) => `<option value="${c.slug}">${c.name}</option>`).join("");
+  const spotlight = document.getElementById("home-spotlight-category");
+  if (spotlight) {
+    // "gallery" is a reserved pseudo-category (photos, not articles) hidden from
+    // the nav and sitemap everywhere else — leave it out here too.
+    spotlight.innerHTML = `<option value="">কোনোটি না</option>` + categoriesCache
+      .filter((c) => c.slug !== "gallery")
+      .map((c) => `<option value="${c.slug}">${c.name}</option>`).join("");
+  }
 }
 
 const articleForm = document.getElementById("article-form");

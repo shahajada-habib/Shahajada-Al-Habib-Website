@@ -8,13 +8,14 @@
 <section class="hero">
   <div class="container hero__inner">
     <div class="hero__text reveal">
-      <h1 th:text="${siteSettings.authorName}">শাহজাদা আল হাবীব</h1>
+      <h1 th:text="${displayAuthorName}">শাহজাদা আল হাবীব</h1>
       <p class="hero__tagline" th:text="${#locale.language == 'en' ? siteSettings.taglineEn : siteSettings.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
       <p class="hero__book" th:if="${!#strings.isEmpty(siteSettings.bookTitle)}"
          th:utext="#{hero.book(${siteSettings.bookTitle}, ${siteSettings.bookYear}, ${siteSettings.bookVenue})}">প্রকাশিত বই: "অশ্রুচুক্তি" — ২০২৩, অমর একুশে বইমেলা।</p>
-      <blockquote class="hero__quote" th:if="${!#strings.isEmpty(siteSettings.bookQuote)}">
-        <span th:text="${siteSettings.bookQuote}">"শাহজাদা আল হাবীবের অশ্রুচুক্তি (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."</span>
+      <blockquote class="hero__quote" data-quote-clamp th:if="${!#strings.isEmpty(siteSettings.bookQuote)}">
+        <span class="quote-clamp" th:text="${siteSettings.bookQuote}">"শাহজাদা আল হাবীবের অশ্রুচুক্তি (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."</span>
         <cite th:if="${!#strings.isEmpty(siteSettings.bookQuoteAuthor)}" th:text="${siteSettings.bookQuoteAuthor}">— মহীবুল আজিজ, অধ্যাপক, বাংলা বিভাগ, চট্টগ্রাম বিশ্ববিদ্যালয়</cite>
+        <button type="button" class="quote-toggle" th:attr="data-more=#{quote.readMore},data-less=#{quote.showLess}" th:text="#{quote.readMore}">আরো পড়ুন...</button>
       </blockquote>
       <div class="hero__actions">
         <a class="btn btn--primary" href="/about" th:text="#{hero.aboutBtn}">আমার সম্পর্কে</a>
@@ -29,14 +30,14 @@
         <img th:src="${siteSettings.profileImageUrl}"
              width="230" height="230"
              fetchpriority="high"
-             th:alt="${siteSettings.authorName}" />
+             th:alt="${displayAuthorName}" />
       </div>
       <!--/* The published book as an object, not just a sentence — it is the strongest
            image on the site and the whole palette is drawn from it. */-->
       <a class="hero__book-cover" href="/about#book" th:if="${!#strings.isEmpty(siteSettings.bookCoverUrl)}">
         <img th:src="${siteSettings.bookCoverUrl}"
              width="142" height="213" decoding="async"
-             th:alt="${siteSettings.bookTitle} + ' — ' + ${siteSettings.authorName} + '-এর কাব্যগ্রন্থের প্রচ্ছদ'" />
+             th:alt="${siteSettings.bookTitle} + ' — ' + ${displayAuthorName} + '-এর কাব্যগ্রন্থের প্রচ্ছদ'" />
       </a>
     </div>
   </div>
@@ -77,6 +78,27 @@
     </div>
   </section>
 
+  <!--/* One admin-chosen category gets its own shelf — e.g. কবিতা once there are
+       enough poems that lumping them into "Recent Writing" would bury them.
+       Off by default; turned on from সাইট তথ্য by picking a category. */-->
+  <section th:if="${spotlightCategory != null and !spotlightArticles.isEmpty()}">
+    <div class="section-head">
+      <h2 class="section-title" th:text="${spotlightCategory.name}">কবিতা</h2>
+      <a class="section-head__more" th:href="@{'/category/' + ${spotlightCategory.slug}}"><span th:text="#{press.viewAll}">সব দেখুন</span> &rarr;</a>
+    </div>
+    <div class="article-grid">
+      <a class="article-card reveal" th:each="item : ${spotlightArticles}" th:href="@{'/article/' + ${item.slug}}">
+        <div class="article-card__image" th:if="${!#strings.isEmpty(item.imageUrl)}">
+          <img th:src="${item.imageUrl}" th:alt="${item.imageAlt ?: item.title}" />
+        </div>
+        <div class="article-card__body">
+          <h3 class="article-card__title" th:text="${item.title}">Title</h3>
+          <span class="article-card__meta" th:text="${item.publishDateDisplay}">Date</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
   <section>
     <h2 class="section-title" th:text="#{home.latest}">সাম্প্রতিক লেখা</h2>
 
@@ -94,7 +116,7 @@
         <p class="lead-post__excerpt" th:if="${!#strings.isEmpty(latest[0].subtitle)}" th:text="${latest[0].subtitle}">Subtitle</p>
         <div class="lead-post__meta">
           <span th:text="${latest[0].publishDateDisplay}">Date</span>
-          <span th:text="${latest[0].viewCount} + ' ' + #{article.views}">0 views</span>
+          <span th:text="${@dateDisplay.number(latest[0].viewCount)} + ' ' + #{article.views}">0 views</span>
         </div>
         <span class="lead-post__more"><span th:text="#{home.readMore}">পড়ুন</span> &rarr;</span>
       </div>
@@ -139,7 +161,7 @@
           <span class="press-chip__publication" th:text="${item.publication}">পত্রিকা</span>
           <span class="press-chip__title" th:text="${item.title}">শিরোনাম</span>
           <span class="press-chip__date" th:if="${item.publishedOn != null}"
-                th:text="${#temporals.format(item.publishedOn, 'd MMMM, yyyy')}">তারিখ</span>
+                th:text="${@dateDisplay.format(item.publishedOn)}">তারিখ</span>
         </div>
       </a>
     </div>
@@ -199,6 +221,7 @@
 
 <div th:replace="~{fragments/layout :: footer}"></div>
 <script src="/js/reveal.js"></script>
+<script src="/js/quote-toggle.js"></script>
 <script>
   // A linked paper can block hotlinking or move the file at any time (The Daily
   // Star does). Drop the thumbnail and let the chip go text-only rather than

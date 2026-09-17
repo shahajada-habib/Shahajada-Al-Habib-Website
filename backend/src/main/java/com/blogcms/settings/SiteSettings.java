@@ -27,6 +27,9 @@ public class SiteSettings {
     @Column(name = "author_name", length = 160)
     private String authorName;
 
+    @Column(name = "author_name_en", length = 160)
+    private String authorNameEn;
+
     @Column(length = 300)
     private String tagline;
 
@@ -66,11 +69,20 @@ public class SiteSettings {
     @Column(name = "youtube_url", length = 500)
     private String youtubeUrl;
 
+    @Column(name = "linkedin_url", length = 500)
+    private String linkedinUrl;
+
     @Column(name = "home_show_category_row", nullable = false)
     private boolean homeShowCategoryRow = true;
 
     @Column(name = "home_show_social_section", nullable = false)
     private boolean homeShowSocialSection = true;
+
+    /** Blank = off. Otherwise the slug of one category to spotlight on the homepage
+     *  with its own section — for a category with enough pieces to deserve one
+     *  (e.g. কবিতা) without hardcoding that choice into the template. */
+    @Column(name = "home_spotlight_category_slug", length = 120)
+    private String homeSpotlightCategorySlug;
 
     @Column(name = "ads_enabled", nullable = false)
     private boolean adsEnabled = false;
@@ -96,6 +108,14 @@ public class SiteSettings {
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
+    }
+
+    public String getAuthorNameEn() {
+        return authorNameEn;
+    }
+
+    public void setAuthorNameEn(String authorNameEn) {
+        this.authorNameEn = authorNameEn;
     }
 
     public String getTagline() {
@@ -200,6 +220,22 @@ public class SiteSettings {
 
     public void setYoutubeUrl(String youtubeUrl) {
         this.youtubeUrl = youtubeUrl;
+    }
+
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
+    }
+
+    public String getHomeSpotlightCategorySlug() {
+        return homeSpotlightCategorySlug;
+    }
+
+    public void setHomeSpotlightCategorySlug(String homeSpotlightCategorySlug) {
+        this.homeSpotlightCategorySlug = homeSpotlightCategorySlug;
     }
 
     public boolean isHomeShowCategoryRow() {

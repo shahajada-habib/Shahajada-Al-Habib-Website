@@ -14,6 +14,7 @@ import com.blogcms.category.CategoryRepository;
 import com.blogcms.comment.CommentRepository;
 import com.blogcms.common.ContentSanitizer;
 import com.blogcms.common.InputValidator;
+import com.blogcms.common.LocalizedDateFormatter;
 import com.blogcms.common.PageResponse;
 import com.blogcms.reaction.ReactionRepository;
 import com.blogcms.reaction.ReactionService;
@@ -22,8 +23,6 @@ import com.blogcms.tag.Tag;
 import com.blogcms.tag.TagRepository;
 import com.blogcms.user.User;
 import com.blogcms.user.UserRepository;
-
-import org.springframework.context.i18n.LocaleContextHolder;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +45,7 @@ public class NewsService {
     private final CommentRepository commentRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final LocalizedDateFormatter dateFormatter;
 
     public NewsService(
             NewsRepository newsRepository,
@@ -56,7 +56,8 @@ public class NewsService {
             ReactionRepository reactionRepository,
             CommentRepository commentRepository,
             TagRepository tagRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            LocalizedDateFormatter dateFormatter) {
         this.newsRepository = newsRepository;
         this.categoryRepository = categoryRepository;
         this.currentUserService = currentUserService;
@@ -66,6 +67,7 @@ public class NewsService {
         this.commentRepository = commentRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
+        this.dateFormatter = dateFormatter;
     }
 
     public Object getAllNews(Integer page, Integer size) {
@@ -483,22 +485,8 @@ public class NewsService {
         return value == null ? "" : value.toString();
     }
 
-    private static final String[] BENGALI_MONTHS = {
-            "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
-            "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
-    };
-    private static final String[] ENGLISH_MONTHS = {
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-    };
-
     private String formatDisplayDate(LocalDateTime value) {
-        if (value == null) {
-            return "";
-        }
-        boolean english = "en".equals(LocaleContextHolder.getLocale().getLanguage());
-        String[] months = english ? ENGLISH_MONTHS : BENGALI_MONTHS;
-        return value.getDayOfMonth() + " " + months[value.getMonthValue() - 1] + ", " + value.getYear();
+        return dateFormatter.format(value);
     }
 
     private List<News> visiblePublishedNews() {
