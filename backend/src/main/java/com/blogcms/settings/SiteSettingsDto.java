@@ -1,0 +1,151 @@
+package com.blogcms.settings;
+
+/** Request/response body for the admin settings form. */
+public class SiteSettingsDto {
+
+    private String authorName;
+    private String tagline;
+    private String taglineEn;
+    private String aboutBio;
+    private String profileImageUrl;
+    private String bookTitle;
+    private String bookYear;
+    private String bookVenue;
+    private String bookCoverUrl;
+    private String bookQuote;
+    private String bookQuoteAuthor;
+    private String facebookUrl;
+    private String instagramUrl;
+    private String youtubeUrl;
+
+    public static SiteSettingsDto from(SiteSettings entity) {
+        SiteSettingsDto dto = new SiteSettingsDto();
+        dto.authorName = entity.getAuthorName();
+        dto.tagline = entity.getTagline();
+        dto.taglineEn = entity.getTaglineEn();
+        dto.aboutBio = entity.getAboutBio();
+        dto.profileImageUrl = entity.getProfileImageUrl();
+        dto.bookTitle = entity.getBookTitle();
+        dto.bookYear = entity.getBookYear();
+        dto.bookVenue = entity.getBookVenue();
+        dto.bookCoverUrl = entity.getBookCoverUrl();
+        dto.bookQuote = entity.getBookQuote();
+        dto.bookQuoteAuthor = entity.getBookQuoteAuthor();
+        dto.facebookUrl = entity.getFacebookUrl();
+        dto.instagramUrl = entity.getInstagramUrl();
+        dto.youtubeUrl = entity.getYoutubeUrl();
+        return dto;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
+    }
+
+    public String getTaglineEn() {
+        return taglineEn;
+    }
+
+    public void setTaglineEn(String taglineEn) {
+        this.taglineEn = taglineEn;
+    }
+
+    public String getAboutBio() {
+        return aboutBio;
+    }
+
+    public void setAboutBio(String aboutBio) {
+        this.aboutBio = aboutBio;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
+
+    public String getBookYear() {
+        return bookYear;
+    }
+
+    public void setBookYear(String bookYear) {
+        this.bookYear = bookYear;
+    }
+
+    public String getBookVenue() {
+        return bookVenue;
+    }
+
+    public void setBookVenue(String bookVenue) {
+        this.bookVenue = bookVenue;
+    }
+
+    public String getBookCoverUrl() {
+        return bookCoverUrl;
+    }
+
+    public void setBookCoverUrl(String bookCoverUrl) {
+        this.bookCoverUrl = bookCoverUrl;
+    }
+
+    public String getBookQuote() {
+        return bookQuote;
+    }
+
+    public void setBookQuote(String bookQuote) {
+        this.bookQuote = bookQuote;
+    }
+
+    public String getBookQuoteAuthor() {
+        return bookQuoteAuthor;
+    }
+
+    public void setBookQuoteAuthor(String bookQuoteAuthor) {
+        this.bookQuoteAuthor = bookQuoteAuthor;
+    }
+
+    public String getFacebookUrl() {
+        return facebookUrl;
+    }
+
+    public void setFacebookUrl(String facebookUrl) {
+        this.facebookUrl = facebookUrl;
+    }
+
+    public String getInstagramUrl() {
+        return instagramUrl;
+    }
+
+    public void setInstagramUrl(String instagramUrl) {
+        this.instagramUrl = instagramUrl;
+    }
+
+    public String getYoutubeUrl() {
+        return youtubeUrl;
+    }
+
+    public void setYoutubeUrl(String youtubeUrl) {
+        this.youtubeUrl = youtubeUrl;
+    }
+}

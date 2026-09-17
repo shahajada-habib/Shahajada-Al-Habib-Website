@@ -8,12 +8,13 @@
 <section class="hero">
   <div class="container hero__inner">
     <div class="hero__text reveal">
-      <h1>শাহজাদা আল হাবীব</h1>
-      <p class="hero__tagline" th:text="#{footer.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
-      <p class="hero__book" th:utext="#{hero.book}">প্রকাশিত বই: "অশ্রুচুক্তি" — ২০২৩, অমর একুশে বইমেলা।</p>
-      <blockquote class="hero__quote">
-        "শাহজাদা আল হাবীবের <strong>অশ্রুচুক্তি</strong> (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."
-        <cite>— মহীবুল আজিজ, অধ্যাপক, বাংলা বিভাগ, চট্টগ্রাম বিশ্ববিদ্যালয়</cite>
+      <h1 th:text="${siteSettings.authorName}">শাহজাদা আল হাবীব</h1>
+      <p class="hero__tagline" th:text="${#locale.language == 'en' ? siteSettings.taglineEn : siteSettings.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
+      <p class="hero__book" th:if="${!#strings.isEmpty(siteSettings.bookTitle)}"
+         th:utext="#{hero.book(${siteSettings.bookTitle}, ${siteSettings.bookYear}, ${siteSettings.bookVenue})}">প্রকাশিত বই: "অশ্রুচুক্তি" — ২০২৩, অমর একুশে বইমেলা।</p>
+      <blockquote class="hero__quote" th:if="${!#strings.isEmpty(siteSettings.bookQuote)}">
+        <span th:text="${siteSettings.bookQuote}">"শাহজাদা আল হাবীবের অশ্রুচুক্তি (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."</span>
+        <cite th:if="${!#strings.isEmpty(siteSettings.bookQuoteAuthor)}" th:text="${siteSettings.bookQuoteAuthor}">— মহীবুল আজিজ, অধ্যাপক, বাংলা বিভাগ, চট্টগ্রাম বিশ্ববিদ্যালয়</cite>
       </blockquote>
       <div class="hero__actions">
         <a class="btn btn--primary" href="/about" th:text="#{hero.aboutBtn}">আমার সম্পর্কে</a>
@@ -22,23 +23,20 @@
     </div>
     <div class="hero__media reveal">
       <div class="hero__photo">
-        <!--/* Rendered at 230px; serve a 440px file (2x) instead of the 800px original,
-             and let high-DPI screens opt into 880px. width/height stop the layout shifting. */-->
-        <img src="/assets/profile-440.jpg"
-             srcset="/assets/profile-440.jpg 440w, /assets/profile-880.jpg 880w"
-             sizes="230px"
+        <!--/* An admin-uploaded photo has no pre-built @2x variant, so this loses the
+             density-switching srcset the original static asset had — a fair trade for
+             letting the author swap their own portrait from the media library. */-->
+        <img th:src="${siteSettings.profileImageUrl}"
              width="230" height="230"
              fetchpriority="high"
-             alt="শাহজাদা আল হাবীব" />
+             th:alt="${siteSettings.authorName}" />
       </div>
       <!--/* The published book as an object, not just a sentence — it is the strongest
            image on the site and the whole palette is drawn from it. */-->
-      <a class="hero__book-cover" href="/about#book">
-        <img src="/assets/cover-300.jpg"
-             srcset="/assets/cover-300.jpg 300w, /assets/cover-600.jpg 600w"
-             sizes="142px"
+      <a class="hero__book-cover" href="/about#book" th:if="${!#strings.isEmpty(siteSettings.bookCoverUrl)}">
+        <img th:src="${siteSettings.bookCoverUrl}"
              width="142" height="213" decoding="async"
-             alt="অশ্রুচুক্তি — শাহজাদা আল হাবীবের কাব্যগ্রন্থের প্রচ্ছদ" />
+             th:alt="${siteSettings.bookTitle} + ' — ' + ${siteSettings.authorName} + '-এর কাব্যগ্রন্থের প্রচ্ছদ'" />
       </a>
     </div>
   </div>

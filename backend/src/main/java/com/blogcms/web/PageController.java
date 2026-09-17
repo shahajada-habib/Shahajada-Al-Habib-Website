@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.blogcms.category.Category;
 import com.blogcms.category.CategoryRepository;
@@ -16,6 +17,7 @@ import com.blogcms.media.MediaAssetService;
 import com.blogcms.news.NewsResponseDto;
 import com.blogcms.news.NewsService;
 import com.blogcms.press.PressClippingService;
+import com.blogcms.settings.SiteSettingsService;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -48,6 +50,7 @@ public class PageController {
     private final CvRequestService cvRequestService;
     private final MediaAssetService mediaAssetService;
     private final PressClippingService pressClippingService;
+    private final SiteSettingsService siteSettingsService;
     private final MessageSource messageSource;
     private final String siteUrl;
 
@@ -58,6 +61,7 @@ public class PageController {
             CvRequestService cvRequestService,
             MediaAssetService mediaAssetService,
             PressClippingService pressClippingService,
+            SiteSettingsService siteSettingsService,
             MessageSource messageSource,
             @Value("${app.site-url:}") String siteUrl) {
         this.siteUrl = siteUrl.endsWith("/") ? siteUrl.substring(0, siteUrl.length() - 1) : siteUrl;
@@ -67,6 +71,7 @@ public class PageController {
         this.cvRequestService = cvRequestService;
         this.mediaAssetService = mediaAssetService;
         this.pressClippingService = pressClippingService;
+        this.siteSettingsService = siteSettingsService;
         this.messageSource = messageSource;
     }
 
@@ -85,6 +90,9 @@ public class PageController {
         model.addAttribute("pageImage", (Object) null);
         // Share bots need absolute canonical/og URLs; templates prepend this to the page path.
         model.addAttribute("siteUrl", siteUrl);
+        // Author name, tagline, book details, social links — one place to edit
+        // what used to be hardcoded across every template.
+        model.addAttribute("siteSettings", siteSettingsService.get());
         // The press link only earns a nav slot once there is something behind it.
         model.addAttribute("hasPress", pressClippingService.hasPublished());
         // Only the article page is a real og:type=article; everything else is a site page.
@@ -98,8 +106,15 @@ public class PageController {
         List<NewsResponseDto> featured = latest.content().stream().filter(NewsResponseDto::isFeatured).limit(4).toList();
         // Hide the Featured section when it would just duplicate the Latest section below it
         // (e.g. with only one published article total).
-        model.addAttribute("featured", featured.size() < latest.content().size() ? featured : List.of());
-        model.addAttribute("latest", latest.content());
+        boolean showFeatured = featured.size() < latest.content().size();
+        model.addAttribute("featured", showFeatured ? featured : List.of());
+        // Whatever ran in Featured shouldn't also appear in Recent Writing right below it —
+        // same article, same page, two cards.
+        Set<Long> featuredIds = featured.stream().map(NewsResponseDto::getId).collect(Collectors.toSet());
+        List<NewsResponseDto> recent = showFeatured
+                ? latest.content().stream().filter((item) -> !featuredIds.contains(item.getId())).toList()
+                : latest.content();
+        model.addAttribute("latest", recent);
         model.addAttribute("pressClippings", pressClippingService.getPublished(PRESS_HOME_LIMIT));
         model.addAttribute("pageTitle", msg("nav.home", locale));
         model.addAttribute("pageDescription", msg("page.home.description", locale));

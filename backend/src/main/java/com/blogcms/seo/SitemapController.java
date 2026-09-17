@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import com.blogcms.category.Category;
 import com.blogcms.category.CategoryRepository;
 import com.blogcms.news.News;
 import com.blogcms.news.NewsRepository;
+import com.blogcms.news.NewsService;
 import com.blogcms.news.NewsStatus;
 
 @RestController
@@ -24,14 +26,17 @@ public class SitemapController {
 
     private final CategoryRepository categoryRepository;
     private final NewsRepository newsRepository;
+    private final NewsService newsService;
     private final String siteUrl;
 
     public SitemapController(
             CategoryRepository categoryRepository,
             NewsRepository newsRepository,
+            NewsService newsService,
             @Value("${SITE_URL:https://your-domain.example.com}") String siteUrl) {
         this.categoryRepository = categoryRepository;
         this.newsRepository = newsRepository;
+        this.newsService = newsService;
         this.siteUrl = normalizeSiteUrl(siteUrl);
     }
 
@@ -44,10 +49,16 @@ public class SitemapController {
         appendUrl(xml, "/", "hourly", "1.0", null);
         appendUrl(xml, "/about", "monthly", "0.6", null);
         appendUrl(xml, "/gallery", "weekly", "0.6", null);
+        appendUrl(xml, "/press", "weekly", "0.6", null);
 
-        for (Category category : categoryRepository.findAll()) {
-            if (category.getSlug() != null && !category.getSlug().isBlank()) {
-                appendUrl(xml, "/category/" + category.getSlug(), "daily", "0.7", null);
+        // Same rule as the nav: a category with nothing published in it isn't worth a crawl,
+        // and "gallery" is a reserved slug for the dedicated /gallery media page, not a real
+        // category page — /category/gallery renders but is always empty.
+        Set<String> populated = newsService.getCategorySlugsWithPublishedNews();
+        for (Category category : categoryRepository.findByStatusOrderByIdAsc("active")) {
+            String slug = category.getSlug();
+            if (slug != null && !slug.isBlank() && !"gallery".equals(slug) && populated.contains(slug)) {
+                appendUrl(xml, "/category/" + slug, "daily", "0.7", null);
             }
         }
 
