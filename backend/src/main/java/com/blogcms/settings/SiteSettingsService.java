@@ -38,6 +38,7 @@ public class SiteSettingsService {
     private SiteSettings createDefault() {
         SiteSettings settings = new SiteSettings();
         settings.setAuthorName("শাহজাদা আল হাবীব");
+        settings.setAuthorNameEn("Shahajada Al Habib");
         settings.setTagline("লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার");
         settings.setTaglineEn("Writer • Poet • Traveler • Cyclist • Photographer");
         settings.setAboutBio("");
@@ -51,6 +52,8 @@ public class SiteSettingsService {
         settings.setFacebookUrl("");
         settings.setInstagramUrl("");
         settings.setYoutubeUrl("");
+        settings.setLinkedinUrl("");
+        settings.setHomeSpotlightCategorySlug("");
         return repository.save(settings);
     }
 
@@ -59,6 +62,8 @@ public class SiteSettingsService {
         SiteSettings settings = repository.findById(SiteSettings.SINGLETON_ID).orElseGet(SiteSettings::new);
 
         settings.setAuthorName(validator.required(request.getAuthorName(), "authorName", 160));
+        // Optional: the English page falls back to the Bangla name when this is blank.
+        settings.setAuthorNameEn(validator.optional(request.getAuthorNameEn(), 160));
         settings.setTagline(validator.optional(request.getTagline(), 300));
         settings.setTaglineEn(validator.optional(request.getTaglineEn(), 300));
         // Rich text from Quill, same treatment as article content.
@@ -77,9 +82,15 @@ public class SiteSettingsService {
         settings.setFacebookUrl(optionalUrl(request.getFacebookUrl(), 500));
         settings.setInstagramUrl(optionalUrl(request.getInstagramUrl(), 500));
         settings.setYoutubeUrl(optionalUrl(request.getYoutubeUrl(), 500));
+        settings.setLinkedinUrl(optionalUrl(request.getLinkedinUrl(), 500));
 
         settings.setHomeShowCategoryRow(request.isHomeShowCategoryRow());
         settings.setHomeShowSocialSection(request.isHomeShowSocialSection());
+        // Not validated against the category list here: an admin who deletes or
+        // renames a category later just makes this section quietly disappear
+        // (PageController only renders it when the slug still resolves to
+        // something with published articles), never a broken page.
+        settings.setHomeSpotlightCategorySlug(validator.optional(request.getHomeSpotlightCategorySlug(), 120));
         // An ad can't actually show without an image regardless of the switch,
         // but the switch is still saved as-is so a paused campaign resumes
         // with one click once the image comes back.

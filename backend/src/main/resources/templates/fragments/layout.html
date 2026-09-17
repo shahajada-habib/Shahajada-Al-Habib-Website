@@ -7,14 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!--/* An article's SEO title is free text the author writes — if they already worked the
        site name into it, appending it again gives a doubled browser-tab title. */-->
-  <title th:text="${#strings.contains(title, siteSettings.authorName) ? title : title + ' | ' + siteSettings.authorName}">শাহজাদা আল হাবীব</title>
+  <title th:text="${#strings.contains(title, displayAuthorName) ? title : title + ' | ' + displayAuthorName}">শাহজাদা আল হাবীব</title>
   <meta name="description" th:content="${description}" />
   <!--/* Share bots (Facebook, WhatsApp, X) reject relative URLs, so canonical/og:url and
        og:image are built absolute from app.site-url rather than left as a bare path. */-->
   <link rel="canonical" th:href="${siteUrl + url}" />
 
   <meta property="og:type" th:content="${pageType}" content="website" />
-  <meta property="og:site_name" th:content="${siteSettings.authorName}" />
+  <meta property="og:site_name" th:content="${displayAuthorName}" />
   <meta property="og:locale" th:content="${#locale.language == 'en' ? 'en_US' : 'bn_BD'}" />
   <meta property="og:title" th:content="${title}" />
   <meta property="og:description" th:content="${description}" />
@@ -29,7 +29,7 @@
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" type="image/png" href="/assets/icon-32.png" sizes="32x32" />
   <link rel="apple-touch-icon" href="/assets/icon-180.png" />
-  <link rel="alternate" type="application/rss+xml" th:title="${siteSettings.authorName} + ' RSS'" href="/rss.xml" />
+  <link rel="alternate" type="application/rss+xml" th:title="${displayAuthorName} + ' RSS'" href="/rss.xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/style.css" />
@@ -48,7 +48,7 @@
 <div th:fragment="header">
   <header class="site-header">
     <div class="container site-header__top">
-      <a href="/" class="logo" th:text="${siteSettings.authorName}">শাহজাদা আল হাবীব</a>
+      <a href="/" class="logo" th:text="${displayAuthorName}">শাহজাদা আল হাবীব</a>
       <form class="search-form" action="/search" method="get">
         <input type="text" name="q" th:placeholder="#{search.placeholder}" />
         <button type="submit" th:text="#{search.button}">Search</button>
@@ -83,7 +83,7 @@
 <footer class="site-footer" th:fragment="footer">
   <div class="container">
     <div>
-      <a href="/" class="logo" style="font-size:1.1rem;" th:text="${siteSettings.authorName}">শাহজাদা আল হাবীব</a>
+      <a href="/" class="logo" style="font-size:1.1rem;" th:text="${displayAuthorName}">শাহজাদা আল হাবীব</a>
       <p class="footer-note" th:text="${#locale.language == 'en' ? siteSettings.taglineEn : siteSettings.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
     </div>
     <div class="social-links">
@@ -96,8 +96,11 @@
       <a th:if="${!#strings.isEmpty(siteSettings.youtubeUrl)}" th:href="${siteSettings.youtubeUrl}" target="_blank" rel="noopener" aria-label="YouTube">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.87.56 9.38.56 9.38.56s7.51 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8M9.6 15.6V8.4l6.27 3.6z"/></svg>
       </a>
+      <a th:if="${!#strings.isEmpty(siteSettings.linkedinUrl)}" th:href="${siteSettings.linkedinUrl}" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.44-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.27 2.38 4.27 5.47zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13M7.12 20.45H3.56V9h3.56z"/></svg>
+      </a>
     </div>
-    <p class="footer-note">&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> <span th:text="${siteSettings.authorName}">শাহজাদা আল হাবীব</span></p>
+    <p class="footer-note">&copy; <span th:text="${@dateDisplay.number(#dates.year(#dates.createNow()))}">2026</span> <span th:text="${displayAuthorName}">শাহজাদা আল হাবীব</span></p>
   </div>
   <script>
     (function () {

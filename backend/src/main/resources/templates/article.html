@@ -12,9 +12,9 @@
       <h1 th:text="${article.title}">Title</h1>
       <p class="article-subtitle" th:if="${!#strings.isEmpty(article.subtitle)}" th:text="${article.subtitle}">Subtitle</p>
       <div class="article-meta">
-        <span>শাহজাদা আল হাবীব</span>
+        <span th:text="${displayAuthorName}">শাহজাদা আল হাবীব</span>
         <span th:text="${article.publishDateDisplay}">Date</span>
-        <span th:text="${article.viewCount} + ' ' + #{article.views}">0 views</span>
+        <span th:text="${@dateDisplay.number(article.viewCount)} + ' ' + #{article.views}">0 views</span>
         <span th:if="${!#strings.isEmpty(article.source)}" th:text="#{article.source} + ' ' + ${article.source}">Source</span>
       </div>
     </div>

@@ -7,9 +7,9 @@
 <main class="container">
  <div class="page-narrow">
   <div class="author-header" style="margin-bottom:36px;">
-    <img class="author-avatar" th:src="${siteSettings.profileImageUrl}" width="140" height="140" th:alt="${siteSettings.authorName}" style="width:140px;height:140px;">
+    <img class="author-avatar" th:src="${siteSettings.profileImageUrl}" width="140" height="140" th:alt="${displayAuthorName}" style="width:140px;height:140px;">
     <div>
-      <h1 style="font-size:1.7rem;" th:text="${siteSettings.authorName}">শাহজাদা আল হাবীব</h1>
+      <h1 style="font-size:1.7rem;" th:text="${displayAuthorName}">শাহজাদা আল হাবীব</h1>
       <p style="font-size:1.05rem; margin-top:4px;" th:text="${#locale.language == 'en' ? siteSettings.taglineEn : siteSettings.tagline}">লেখক • কবি • ভ্রমণপিপাসু • সাইক্লিস্ট • ফটোগ্রাফার</p>
     </div>
   </div>
@@ -23,14 +23,15 @@
     <div class="book-panel__cover" th:if="${!#strings.isEmpty(siteSettings.bookCoverUrl)}">
       <img th:src="${siteSettings.bookCoverUrl}"
            width="148" height="222" loading="lazy"
-           th:alt="${siteSettings.bookTitle} + ' — ' + ${siteSettings.authorName} + '-এর কাব্যগ্রন্থের প্রচ্ছদ'" />
+           th:alt="${siteSettings.bookTitle} + ' — ' + ${displayAuthorName} + '-এর কাব্যগ্রন্থের প্রচ্ছদ'" />
     </div>
     <div>
       <h3 class="book-panel__title" th:text="${siteSettings.bookTitle}">অশ্রুচুক্তি</h3>
       <p class="book-panel__year" th:text="#{book.meta(${siteSettings.bookYear}, ${siteSettings.bookVenue})}">কাব্যগ্রন্থ • ২০২৩ • অমর একুশে বইমেলা</p>
-      <blockquote th:if="${!#strings.isEmpty(siteSettings.bookQuote)}">
-        <span th:text="${siteSettings.bookQuote}">"শাহজাদা আল হাবীবের অশ্রুচুক্তি (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."</span>
+      <blockquote data-quote-clamp th:if="${!#strings.isEmpty(siteSettings.bookQuote)}">
+        <span class="quote-clamp" th:text="${siteSettings.bookQuote}">"শাহজাদা আল হাবীবের অশ্রুচুক্তি (২০২৩), কাব্যগ্রন্থ প্রেম এবং আত্মোচ্চারণের স্বতঃস্ফূর্ত এবং প্রত্যয়ী প্রকাশ..."</span>
         <cite th:if="${!#strings.isEmpty(siteSettings.bookQuoteAuthor)}" th:text="${siteSettings.bookQuoteAuthor}">— মহীবুল আজিজ, অধ্যাপক, বাংলা বিভাগ, চট্টগ্রাম বিশ্ববিদ্যালয়</cite>
+        <button type="button" class="quote-toggle" th:attr="data-more=#{quote.readMore},data-less=#{quote.showLess}" th:text="#{quote.readMore}">আরো পড়ুন...</button>
       </blockquote>
     </div>
   </div>
@@ -61,10 +62,14 @@
     <a th:if="${!#strings.isEmpty(siteSettings.youtubeUrl)}" th:href="${siteSettings.youtubeUrl}" target="_blank" rel="noopener" aria-label="YouTube" style="background:var(--dark);">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.87.56 9.38.56 9.38.56s7.51 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8M9.6 15.6V8.4l6.27 3.6z"/></svg>
     </a>
+    <a th:if="${!#strings.isEmpty(siteSettings.linkedinUrl)}" th:href="${siteSettings.linkedinUrl}" target="_blank" rel="noopener" aria-label="LinkedIn" style="background:var(--dark);">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.44-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.27 2.38 4.27 5.47zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13M7.12 20.45H3.56V9h3.56z"/></svg>
+    </a>
   </div>
  </div>
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>
+<script src="/js/quote-toggle.js"></script>
 </body>
 </html>
