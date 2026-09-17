@@ -66,6 +66,24 @@ public class SiteSettings {
     @Column(name = "youtube_url", length = 500)
     private String youtubeUrl;
 
+    @Column(name = "home_show_category_row", nullable = false)
+    private boolean homeShowCategoryRow = true;
+
+    @Column(name = "home_show_social_section", nullable = false)
+    private boolean homeShowSocialSection = true;
+
+    @Column(name = "ads_enabled", nullable = false)
+    private boolean adsEnabled = false;
+
+    @Column(name = "ad_image_url", length = 1000)
+    private String adImageUrl;
+
+    @Column(name = "ad_link_url", length = 1000)
+    private String adLinkUrl;
+
+    @Column(name = "ad_label", length = 80)
+    private String adLabel;
+
     private LocalDateTime updatedAt;
 
     public Long getId() {
@@ -182,6 +200,54 @@ public class SiteSettings {
 
     public void setYoutubeUrl(String youtubeUrl) {
         this.youtubeUrl = youtubeUrl;
+    }
+
+    public boolean isHomeShowCategoryRow() {
+        return homeShowCategoryRow;
+    }
+
+    public void setHomeShowCategoryRow(boolean homeShowCategoryRow) {
+        this.homeShowCategoryRow = homeShowCategoryRow;
+    }
+
+    public boolean isHomeShowSocialSection() {
+        return homeShowSocialSection;
+    }
+
+    public void setHomeShowSocialSection(boolean homeShowSocialSection) {
+        this.homeShowSocialSection = homeShowSocialSection;
+    }
+
+    public boolean isAdsEnabled() {
+        return adsEnabled;
+    }
+
+    public void setAdsEnabled(boolean adsEnabled) {
+        this.adsEnabled = adsEnabled;
+    }
+
+    public String getAdImageUrl() {
+        return adImageUrl;
+    }
+
+    public void setAdImageUrl(String adImageUrl) {
+        this.adImageUrl = adImageUrl;
+    }
+
+    public String getAdLinkUrl() {
+        return adLinkUrl;
+    }
+
+    public void setAdLinkUrl(String adLinkUrl) {
+        this.adLinkUrl = adLinkUrl;
+    }
+
+    public String getAdLabel() {
+        return adLabel;
+    }
+
+    public void setAdLabel(String adLabel) {
+        this.adLabel = adLabel;
     }
 
     public LocalDateTime getUpdatedAt() {

@@ -44,6 +44,15 @@
 
 <main class="container">
 
+  <!--/* A compact one-line index of what's on the site, not a full section per
+       category — with only a handful of pieces per category, a whole block
+       each would look emptier than this single row. Toggled off from সাইট
+       তথ্য if the author would rather readers found categories via the nav only. */-->
+  <nav class="category-row reveal" th:if="${siteSettings.homeShowCategoryRow and !navCategories.isEmpty()}" aria-label="ক্যাটাগরি">
+    <a th:each="cat : ${navCategories}" th:if="${cat.slug != 'gallery'}"
+       th:href="@{'/category/' + ${cat.slug}}" th:text="${cat.name}">Category</a>
+  </nav>
+
   <section th:if="${!featured.isEmpty()}" style="padding-bottom: 0;">
     <h2 class="section-title" th:text="#{home.featured}">নির্বাচিত লেখা</h2>
     <div class="featured-grid">
@@ -139,7 +148,7 @@
   <!--/* Both embeds are click-to-load facades. The Facebook SDK and the YouTube player
        together cost ~1.5s and set third-party cookies on every visit, so nothing from
        facebook.com or youtube.com is requested until the reader actually asks for it. */-->
-  <section class="social-feed">
+  <section class="social-feed" th:if="${siteSettings.homeShowSocialSection}">
     <h2 class="section-title" th:text="#{social.heading}">সামাজিক মাধ্যমে যুক্ত থাকুন</h2>
     <div class="social-feed__grid">
       <div class="embed-facade" data-embed="facebook">
@@ -174,6 +183,16 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!--/* One small, clearly-labelled slot — a self-served image+link banner, not a
+       third-party ad network script. The label is there for the same reason a
+       print ad is marked "Advertisement": it's disclosure, not decoration. */-->
+  <section th:if="${siteSettings.adsEnabled and !#strings.isEmpty(siteSettings.adImageUrl) and !#strings.isEmpty(siteSettings.adLinkUrl)}" style="padding-top:0;">
+    <a class="ad-banner reveal" th:href="${siteSettings.adLinkUrl}" target="_blank" rel="noopener sponsored">
+      <span class="ad-banner__label" th:text="${#strings.isEmpty(siteSettings.adLabel)} ? 'বিজ্ঞাপন' : ${siteSettings.adLabel}">বিজ্ঞাপন</span>
+      <img th:src="${siteSettings.adImageUrl}" alt="" />
+    </a>
   </section>
 
 </main>

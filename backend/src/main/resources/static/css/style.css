@@ -653,3 +653,30 @@ main.container > .section-title:first-child { margin-top: 42px; }
   color: var(--text-muted); background: var(--surface-alt);
   border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px;
 }
+
+/* Homepage category row — a compact index of what's on the site, sitting
+   between the hero and the article sections. */
+.category-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 30px 0 6px; }
+.category-row a {
+  font-family: inherit; font-size: 0.86rem; font-weight: 600;
+  padding: 8px 18px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.category-row a:hover { border-color: var(--crimson); color: var(--crimson); transform: translateY(-2px); }
+
+/* A single, clearly-labelled ad/sponsor slot — sized like a classic leaderboard
+   banner so it reads as its own thing, never mistaken for site content. */
+.ad-banner {
+  display: block; position: relative; max-width: 728px; margin: 0 auto;
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  background: var(--surface-alt); box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease;
+}
+.ad-banner:hover { box-shadow: var(--shadow); }
+.ad-banner img { width: 100%; max-height: 140px; object-fit: cover; }
+.ad-banner__label {
+  position: absolute; top: 8px; left: 8px; z-index: 1;
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.55); color: #fff; padding: 3px 9px; border-radius: 999px;
+}

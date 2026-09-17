@@ -78,6 +78,16 @@ public class SiteSettingsService {
         settings.setInstagramUrl(optionalUrl(request.getInstagramUrl(), 500));
         settings.setYoutubeUrl(optionalUrl(request.getYoutubeUrl(), 500));
 
+        settings.setHomeShowCategoryRow(request.isHomeShowCategoryRow());
+        settings.setHomeShowSocialSection(request.isHomeShowSocialSection());
+        // An ad can't actually show without an image regardless of the switch,
+        // but the switch is still saved as-is so a paused campaign resumes
+        // with one click once the image comes back.
+        settings.setAdsEnabled(request.isAdsEnabled());
+        settings.setAdImageUrl(optionalUrl(request.getAdImageUrl(), 1000));
+        settings.setAdLinkUrl(optionalUrl(request.getAdLinkUrl(), 1000));
+        settings.setAdLabel(validator.optional(request.getAdLabel(), 80));
+
         return repository.save(settings);
     }
 

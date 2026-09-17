@@ -362,6 +362,31 @@
           </div>
         </div>
 
+        <h3 style="margin:20px 0 12px;">হোমপেজ লেআউট</h3>
+        <p class="form-note">কোড না ছুঁয়ে হোমপেজের এই অংশগুলো দেখাবে কিনা ঠিক করুন।</p>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+          <div class="checkbox-row"><input type="checkbox" name="homeShowCategoryRow" id="home-show-category-row"><label for="home-show-category-row">হিরোর নিচে ক্যাটাগরি সারি দেখান (কবিতা · গল্প · জার্নাল...)</label></div>
+          <div class="checkbox-row"><input type="checkbox" name="homeShowSocialSection" id="home-show-social-section"><label for="home-show-social-section">"সামাজিক মাধ্যমে যুক্ত থাকুন" সেকশন দেখান</label></div>
+        </div>
+
+        <h3 style="margin:20px 0 12px;">বিজ্ঞাপন / স্পনসর</h3>
+        <p class="form-note">একটামাত্র ছোট ব্যানার, হোমপেজের একদম নিচে (ফুটারের ঠিক আগে)। নিজের কোনো ছবি + লিংক বসান — Google AdSense-এর মতো নেটওয়ার্ক এখানে যোগ হয় না, সেটা আলাদাভাবে করতে হবে।</p>
+        <div class="checkbox-row" style="margin-bottom:10px;"><input type="checkbox" name="adsEnabled" id="ads-enabled"><label for="ads-enabled">বিজ্ঞাপন স্লট চালু করুন</label></div>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>ব্যানার ছবির লিংক <button type="button" class="btn btn--ghost btn--sm" data-pick-image="adImageUrl">মিডিয়া লাইব্রেরি থেকে বেছে নিন</button></label>
+            <input type="text" name="adImageUrl" maxlength="1000">
+          </div>
+          <div class="form-group">
+            <label>ক্লিক করলে যেখানে যাবে</label>
+            <input type="text" name="adLinkUrl" maxlength="1000" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>লেবেল (ঐচ্ছিক)</label>
+            <input type="text" name="adLabel" maxlength="80" placeholder="বিজ্ঞাপন">
+          </div>
+        </div>
+
         <div style="display:flex; gap:10px; margin-top:16px;">
           <button type="submit" class="btn btn--primary btn--sm">সংরক্ষণ করুন</button>
         </div>

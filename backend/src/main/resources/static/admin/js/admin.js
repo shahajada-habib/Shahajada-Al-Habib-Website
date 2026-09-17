@@ -637,7 +637,9 @@ async function loadSiteInfo() {
     const settings = await apiRequest("/api/admin/settings");
     for (const [name, value] of Object.entries(settings)) {
       const field = siteInfoForm.querySelector(`[name="${name}"]`);
-      if (field) field.value = value || "";
+      if (!field) continue;
+      if (field.type === "checkbox") field.checked = !!value;
+      else field.value = value || "";
     }
     aboutBioQuill.root.innerHTML = settings.aboutBio || "";
   } catch (err) {
@@ -655,6 +657,11 @@ siteInfoForm.addEventListener("submit", async (e) => {
   const fd = new FormData(siteInfoForm);
   const payload = {};
   for (const [name, value] of fd.entries()) payload[name] = value;
+  // FormData omits unchecked boxes entirely and sends "on" for checked ones —
+  // read the real booleans straight from the inputs instead.
+  siteInfoForm.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+    payload[box.name] = box.checked;
+  });
   payload.aboutBio = aboutBioQuill.root.innerHTML;
 
   try {
