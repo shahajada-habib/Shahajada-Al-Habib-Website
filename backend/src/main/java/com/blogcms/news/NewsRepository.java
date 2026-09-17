@@ -176,6 +176,10 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 
     Optional<News> findBySlugAndStatus(String slug, String status);
 
+    // Guards category deletion: the FK has no ON DELETE clause, so deleting a
+    // populated category would otherwise surface as a raw 500 from the DB.
+    boolean existsByCategory_Id(Long categoryId);
+
     boolean existsBySlug(String slug);
 
     boolean existsBySlugAndIdNot(String slug, Long id);

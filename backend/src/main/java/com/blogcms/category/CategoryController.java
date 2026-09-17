@@ -3,6 +3,7 @@ package com.blogcms.category;
 import java.util.List;
 import java.util.Set;
 
+import com.blogcms.news.NewsRepository;
 import com.blogcms.security.CurrentUserService;
 
 import org.slf4j.Logger;
@@ -27,10 +28,15 @@ public class CategoryController {
     private static final Set<String> ALLOWED_STATUSES = Set.of("active", "inactive");
 
     private final CategoryRepository categoryRepository;
+    private final NewsRepository newsRepository;
     private final CurrentUserService currentUserService;
 
-    public CategoryController(CategoryRepository categoryRepository, CurrentUserService currentUserService) {
+    public CategoryController(
+            CategoryRepository categoryRepository,
+            NewsRepository newsRepository,
+            CurrentUserService currentUserService) {
         this.categoryRepository = categoryRepository;
+        this.newsRepository = newsRepository;
         this.currentUserService = currentUserService;
     }
 
@@ -83,6 +89,10 @@ public class CategoryController {
 
         if (!categoryRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
+        }
+        if (newsRepository.existsByCategory_Id(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "এই ক্যাটাগরিতে লেখা আছে — আগে সেগুলো অন্য ক্যাটাগরিতে সরান বা মুছে ফেলুন");
         }
 
         categoryRepository.deleteById(id);

@@ -49,6 +49,7 @@
       <button class="tab-btn" data-tab="press">সংবাদপত্রে</button>
       <button class="tab-btn" data-tab="categories">ক্যাটাগরি</button>
       <button class="tab-btn" data-tab="media">মিডিয়া লাইব্রেরি</button>
+      <button class="tab-btn" data-tab="site-info">সাইট তথ্য</button>
       <button class="tab-btn" data-tab="settings">সেটিংস</button>
     </div>
 
@@ -96,6 +97,7 @@
           <div class="form-group">
             <label>প্রকাশের তারিখ</label>
             <input type="datetime-local" name="publishDate">
+            <p class="form-note">ভবিষ্যতের কোনো তারিখ-সময় দিলে, স্ট্যাটাস "Published" থাকলেও ঠিক সেই মুহূর্ত না আসা পর্যন্ত লেখাটি সাইটে দেখা যাবে না — অর্থাৎ সময় নির্ধারণ করে প্রকাশ (schedule) করতে চাইলে এভাবেই করুন।</p>
           </div>
         </div>
 
@@ -248,11 +250,22 @@
     <div class="tab-panel" id="categories-panel">
       <div class="admin-panel-head"><h2>ক্যাটাগরি</h2></div>
       <form id="category-form" class="admin-form-card open" style="margin-bottom:20px;">
+        <input type="hidden" name="id">
         <div class="form-grid">
           <div class="form-group"><label>নাম</label><input type="text" name="name" required></div>
           <div class="form-group"><label>Slug</label><input type="text" name="slug" required></div>
+          <div class="form-group">
+            <label>অবস্থা</label>
+            <select name="status">
+              <option value="active">active</option>
+              <option value="inactive">inactive</option>
+            </select>
+          </div>
         </div>
-        <button type="submit" class="btn btn--primary btn--sm">ক্যাটাগরি যোগ করুন</button>
+        <div style="display:flex; gap:10px;">
+          <button type="submit" class="btn btn--primary btn--sm" id="category-submit-btn">ক্যাটাগরি যোগ করুন</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="category-cancel-btn" style="display:none;">বাতিল</button>
+        </div>
         <p class="form-error" id="category-form-error"></p>
       </form>
       <div id="categories-table-wrap"></div>
@@ -272,6 +285,91 @@
     </div>
 
     <!-- Settings -->
+    <!-- Site info -->
+    <div class="tab-panel" id="site-info-panel">
+      <div class="admin-panel-head">
+        <h2>সাইট তথ্য</h2>
+      </div>
+      <p class="form-note">এখানে যা লিখবেন তা হোমপেজ, "আমার সম্পর্কে" পেজ, ফুটার এবং RSS ফিডে সরাসরি দেখাবে — কোড না ছুঁয়েই।</p>
+
+      <form id="site-info-form" class="admin-form-card open">
+        <h3 style="margin:4px 0 12px;">পরিচয়</h3>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>নাম</label>
+            <input type="text" name="authorName" required maxlength="160">
+          </div>
+          <div class="form-group">
+            <label>ট্যাগলাইন (বাংলা)</label>
+            <input type="text" name="tagline" maxlength="300" placeholder="লেখক • কবি • ভ্রমণপিপাসু">
+          </div>
+          <div class="form-group">
+            <label>ট্যাগলাইন (English)</label>
+            <input type="text" name="taglineEn" maxlength="300" placeholder="Writer • Poet • Traveler">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>প্রোফাইল ছবির লিংক <button type="button" class="btn btn--ghost btn--sm" data-pick-image="profileImageUrl">মিডিয়া লাইব্রেরি থেকে বেছে নিন</button></label>
+            <input type="text" name="profileImageUrl" maxlength="1000">
+          </div>
+        </div>
+
+        <h3 style="margin:20px 0 12px;">জীবনী ("আমার সম্পর্কে" পেজে দেখাবে)</h3>
+        <div class="form-group">
+          <div id="about-bio-editor"></div>
+        </div>
+
+        <h3 style="margin:20px 0 12px;">প্রকাশিত বই</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>বইয়ের নাম</label>
+            <input type="text" name="bookTitle" maxlength="300" placeholder="অশ্রুচুক্তি">
+          </div>
+          <div class="form-group">
+            <label>প্রকাশের সাল</label>
+            <input type="text" name="bookYear" maxlength="40" placeholder="২০২৩">
+          </div>
+          <div class="form-group">
+            <label>প্রকাশনার স্থান/অনুষ্ঠান</label>
+            <input type="text" name="bookVenue" maxlength="300" placeholder="অমর একুশে বইমেলা">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>বইয়ের প্রচ্ছদের লিংক <button type="button" class="btn btn--ghost btn--sm" data-pick-image="bookCoverUrl">মিডিয়া লাইব্রেরি থেকে বেছে নিন</button></label>
+            <input type="text" name="bookCoverUrl" maxlength="1000">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>বই নিয়ে উদ্ধৃতি/রিভিউ (ঐচ্ছিক)</label>
+            <textarea name="bookQuote" rows="3" maxlength="2000" placeholder="একজন সমালোচকের মন্তব্য..."></textarea>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>উদ্ধৃতির সূত্র</label>
+            <input type="text" name="bookQuoteAuthor" maxlength="300" placeholder="— নাম, পদবি, প্রতিষ্ঠান">
+          </div>
+        </div>
+
+        <h3 style="margin:20px 0 12px;">সামাজিক যোগাযোগ মাধ্যম</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Facebook</label>
+            <input type="text" name="facebookUrl" maxlength="500" placeholder="https://www.facebook.com/...">
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" name="instagramUrl" maxlength="500" placeholder="https://www.instagram.com/...">
+          </div>
+          <div class="form-group">
+            <label>YouTube</label>
+            <input type="text" name="youtubeUrl" maxlength="500" placeholder="https://www.youtube.com/@...">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button type="submit" class="btn btn--primary btn--sm">সংরক্ষণ করুন</button>
+        </div>
+        <p class="form-error" id="site-info-error"></p>
+        <p class="form-success" id="site-info-success" style="display:none; color:#067647;">সংরক্ষণ হয়েছে — সাইটে গিয়ে দেখে নিন।</p>
+      </form>
+    </div>
+
     <div class="tab-panel" id="settings-panel">
       <div class="admin-panel-head">
         <h2>পাসওয়ার্ড পরিবর্তন করুন</h2>

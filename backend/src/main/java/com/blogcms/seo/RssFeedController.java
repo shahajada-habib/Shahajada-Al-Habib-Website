@@ -16,18 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blogcms.news.News;
 import com.blogcms.news.NewsRepository;
 import com.blogcms.news.NewsStatus;
+import com.blogcms.settings.SiteSettingsService;
 
 @RestController
 public class RssFeedController {
     private static final DateTimeFormatter RFC_822 = DateTimeFormatter.RFC_1123_DATE_TIME.withLocale(Locale.ENGLISH);
 
     private final NewsRepository newsRepository;
+    private final SiteSettingsService siteSettingsService;
     private final String siteUrl;
 
     public RssFeedController(
             NewsRepository newsRepository,
+            SiteSettingsService siteSettingsService,
             @Value("${SITE_URL:https://your-domain.example.com}") String siteUrl) {
         this.newsRepository = newsRepository;
+        this.siteSettingsService = siteSettingsService;
         this.siteUrl = normalizeSiteUrl(siteUrl);
     }
 
@@ -38,14 +42,15 @@ public class RssFeedController {
                 NewsStatus.PUBLISHED,
                 LocalDateTime.now(),
                 PageRequest.of(0, 20)).getContent();
+        String authorName = siteSettingsService.get().getAuthorName();
 
         StringBuilder xml = new StringBuilder();
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         xml.append("<rss version=\"2.0\">\n");
         xml.append("  <channel>\n");
-        appendElement(xml, "title", "শাহজাদা আল হাবীব", 4);
+        appendElement(xml, "title", authorName, 4);
         appendElement(xml, "link", siteUrl, 4);
-        appendElement(xml, "description", "শাহজাদা আল হাবীবের কবিতা, গল্প ও জার্নাল।", 4);
+        appendElement(xml, "description", authorName + "-এর কবিতা, গল্প ও জার্নাল।", 4);
         appendElement(xml, "language", "bn", 4);
 
         for (News article : articles) {
@@ -58,7 +63,7 @@ public class RssFeedController {
             if (article.getCategory() != null) {
                 appendElement(xml, "category", article.getCategory().getName(), 6);
             }
-            appendElement(xml, "author", authorName(article), 6);
+            appendElement(xml, "author", authorName(article, authorName), 6);
             xml.append("    </item>\n");
         }
 
@@ -81,11 +86,11 @@ public class RssFeedController {
         return date.atZone(ZoneId.systemDefault()).format(RFC_822);
     }
 
-    private String authorName(News article) {
+    private String authorName(News article, String defaultAuthorName) {
         if (article.getAuthor() != null) {
             return firstNonBlank(article.getAuthor().getDisplayName(), article.getAuthor().getUsername());
         }
-        return firstNonBlank(article.getReporterName(), article.getSource(), "শাহজাদা আল হাবীব");
+        return firstNonBlank(article.getReporterName(), article.getSource(), defaultAuthorName);
     }
 
     private void appendElement(StringBuilder xml, String name, String value, int indent) {

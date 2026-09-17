@@ -52,6 +52,7 @@ function showDashboard() {
   document.getElementById("login-view").style.display = "none";
   document.getElementById("dashboard-view").style.display = "block";
   initQuill();
+  initAboutBioQuill();
   loadDashboard();
   loadCategoriesForSelect();
   loadArticles();
@@ -60,6 +61,7 @@ function showDashboard() {
   loadPress();
   loadCategories();
   loadMedia();
+  loadSiteInfo();
 }
 
 // ---- tabs ----
@@ -401,32 +403,85 @@ document.getElementById("cv-file-download-btn").addEventListener("click", async 
 });
 
 // ---- Categories ----
-document.getElementById("category-form").addEventListener("submit", async (e) => {
+const categoryForm = document.getElementById("category-form");
+
+function resetCategoryForm() {
+  categoryForm.reset();
+  categoryForm.id.value = "";
+  document.getElementById("category-submit-btn").textContent = "ক্যাটাগরি যোগ করুন";
+  document.getElementById("category-cancel-btn").style.display = "none";
+  document.getElementById("category-form-error").textContent = "";
+}
+document.getElementById("category-cancel-btn").addEventListener("click", resetCategoryForm);
+
+categoryForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById("category-form-error");
   errorEl.textContent = "";
   const formData = new FormData(e.target);
+  const id = formData.get("id");
+  const payload = { name: formData.get("name"), slug: formData.get("slug"), status: formData.get("status") || "active" };
   try {
-    await apiRequest("/api/categories", { method: "POST", body: { name: formData.get("name"), slug: formData.get("slug"), status: "active" } });
-    e.target.reset();
+    if (id) {
+      await apiRequest("/api/categories/" + id, { method: "PUT", body: payload });
+    } else {
+      await apiRequest("/api/categories", { method: "POST", body: payload });
+    }
+    resetCategoryForm();
     loadCategories();
     loadCategoriesForSelect();
   } catch (err) {
-    errorEl.textContent = err.message || "Could not create category.";
+    errorEl.textContent = err.message || "সংরক্ষণ করা গেল না।";
   }
 });
 
+let categoriesTableCache = [];
 async function loadCategories() {
   const wrap = document.getElementById("categories-table-wrap");
   wrap.innerHTML = `<p style="color:var(--text-muted)">Loading...</p>`;
   try {
-    const categories = await apiRequest("/api/categories");
+    categoriesTableCache = await apiRequest("/api/categories");
     wrap.innerHTML = `
       <table class="data-table">
-        <thead><tr><th>Name</th><th>Slug</th><th>Status</th></tr></thead>
-        <tbody>${categories.map((c) => `<tr><td>${c.name}</td><td>${c.slug}</td><td>${c.status}</td></tr>`).join("")}</tbody>
+        <thead><tr><th>Name</th><th>Slug</th><th>Status</th><th></th></tr></thead>
+        <tbody>${categoriesTableCache.map((c) => `
+          <tr>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.slug)}</td>
+            <td>${statusBadge(c.status)}</td>
+            <td class="table-actions">
+              <button class="btn btn--ghost btn--sm" data-category-edit="${c.id}">সম্পাদনা</button>
+              <button class="btn btn--danger btn--sm" data-category-delete="${c.id}">মুছুন</button>
+            </td>
+          </tr>
+        `).join("")}</tbody>
       </table>
     `;
+    wrap.querySelectorAll("[data-category-edit]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const c = categoriesTableCache.find((x) => String(x.id) === btn.dataset.categoryEdit);
+        if (!c) return;
+        categoryForm.id.value = c.id;
+        categoryForm.name.value = c.name || "";
+        categoryForm.slug.value = c.slug || "";
+        categoryForm.status.value = c.status || "active";
+        document.getElementById("category-submit-btn").textContent = "সংরক্ষণ করুন";
+        document.getElementById("category-cancel-btn").style.display = "inline-flex";
+        categoryForm.scrollIntoView({ behavior: "smooth" });
+      });
+    });
+    wrap.querySelectorAll("[data-category-delete]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("এই ক্যাটাগরিটি মুছে ফেলবেন?")) return;
+        try {
+          await apiRequest("/api/categories/" + btn.dataset.categoryDelete, { method: "DELETE" });
+          loadCategories();
+          loadCategoriesForSelect();
+        } catch (err) {
+          alert(err.message || "মুছে ফেলা গেল না।");
+        }
+      });
+    });
   } catch (err) {
     wrap.innerHTML = `<div class="empty-state">Could not load categories.</div>`;
   }
@@ -454,7 +509,10 @@ document.getElementById("media-file-input").addEventListener("change", async (e)
 });
 
 let mediaCache = [];
-let pickingImageForArticle = false;
+// Which form + field a media click should fill, and which tab to return to.
+// Generalized so both the article form's image field and the site-info form's
+// profile/book-cover fields can reuse the same "pick from library" flow.
+let pickImageTarget = null;
 
 async function loadMedia() {
   const grid = document.getElementById("media-grid");
@@ -483,10 +541,12 @@ async function loadMedia() {
     });
     grid.querySelectorAll("[data-use]").forEach((img) => {
       img.addEventListener("click", () => {
-        if (!pickingImageForArticle) return;
-        document.getElementById("article-image-url").value = img.dataset.use;
-        pickingImageForArticle = false;
-        document.querySelector('[data-tab="articles"]').click();
+        if (!pickImageTarget) return;
+        const field = document.getElementById(pickImageTarget.formId).querySelector(`[name="${pickImageTarget.fieldName}"]`);
+        if (field) field.value = img.dataset.use;
+        const returnTab = pickImageTarget.returnTab;
+        pickImageTarget = null;
+        document.querySelector(`[data-tab="${returnTab}"]`).click();
       });
     });
     grid.querySelectorAll("[data-delete-media]").forEach((btn) => {
@@ -517,8 +577,16 @@ async function saveGallerySetting(id) {
 }
 
 document.getElementById("pick-image-btn").addEventListener("click", () => {
-  pickingImageForArticle = true;
+  pickImageTarget = { formId: "article-form", fieldName: "imageUrl", returnTab: "articles" };
   document.querySelector('[data-tab="media"]').click();
+});
+
+// Same picker, wired to whichever site-info field the clicked button names.
+document.querySelectorAll("[data-pick-image]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    pickImageTarget = { formId: "site-info-form", fieldName: btn.dataset.pickImage, returnTab: "site-info" };
+    document.querySelector('[data-tab="media"]').click();
+  });
 });
 
 // ---- Change password ----
@@ -548,6 +616,53 @@ document.getElementById("change-password-form").addEventListener("submit", async
     form.reset();
   } catch (err) {
     errorEl.textContent = err.message || "পাসওয়ার্ড পরিবর্তন করা যায়নি।";
+  }
+});
+
+// ---- site info (author profile, book, socials) ----
+let aboutBioQuill;
+function initAboutBioQuill() {
+  if (aboutBioQuill) return;
+  aboutBioQuill = new Quill("#about-bio-editor", {
+    theme: "snow",
+    modules: { toolbar: [["bold", "italic", "underline"], ["link"], [{ list: "bullet" }], ["clean"]] },
+  });
+}
+
+const siteInfoForm = document.getElementById("site-info-form");
+
+async function loadSiteInfo() {
+  const errorEl = document.getElementById("site-info-error");
+  try {
+    const settings = await apiRequest("/api/admin/settings");
+    for (const [name, value] of Object.entries(settings)) {
+      const field = siteInfoForm.querySelector(`[name="${name}"]`);
+      if (field) field.value = value || "";
+    }
+    aboutBioQuill.root.innerHTML = settings.aboutBio || "";
+  } catch (err) {
+    errorEl.textContent = err.message || "সাইট তথ্য লোড করা গেল না।";
+  }
+}
+
+siteInfoForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById("site-info-error");
+  const successEl = document.getElementById("site-info-success");
+  errorEl.textContent = "";
+  successEl.style.display = "none";
+
+  const fd = new FormData(siteInfoForm);
+  const payload = {};
+  for (const [name, value] of fd.entries()) payload[name] = value;
+  payload.aboutBio = aboutBioQuill.root.innerHTML;
+
+  try {
+    await apiRequest("/api/admin/settings", { method: "PUT", body: payload });
+    successEl.style.display = "block";
+    setTimeout(() => { successEl.style.display = "none"; }, 3000);
+  } catch (err) {
+    errorEl.textContent = err.message || "সংরক্ষণ করা গেল না।";
   }
 });
 
@@ -712,3 +827,4 @@ async function loadPress() {
     wrap.innerHTML = `<p class="form-error">${escapeHtml(err.message || "লোড করা গেল না।")}</p>`;
   }
 }
+
