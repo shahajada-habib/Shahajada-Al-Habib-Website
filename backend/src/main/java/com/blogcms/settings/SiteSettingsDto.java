@@ -17,6 +17,12 @@ public class SiteSettingsDto {
     private String facebookUrl;
     private String instagramUrl;
     private String youtubeUrl;
+    private boolean homeShowCategoryRow;
+    private boolean homeShowSocialSection;
+    private boolean adsEnabled;
+    private String adImageUrl;
+    private String adLinkUrl;
+    private String adLabel;
 
     public static SiteSettingsDto from(SiteSettings entity) {
         SiteSettingsDto dto = new SiteSettingsDto();
@@ -34,6 +40,12 @@ public class SiteSettingsDto {
         dto.facebookUrl = entity.getFacebookUrl();
         dto.instagramUrl = entity.getInstagramUrl();
         dto.youtubeUrl = entity.getYoutubeUrl();
+        dto.homeShowCategoryRow = entity.isHomeShowCategoryRow();
+        dto.homeShowSocialSection = entity.isHomeShowSocialSection();
+        dto.adsEnabled = entity.isAdsEnabled();
+        dto.adImageUrl = entity.getAdImageUrl();
+        dto.adLinkUrl = entity.getAdLinkUrl();
+        dto.adLabel = entity.getAdLabel();
         return dto;
     }
 
@@ -147,5 +159,53 @@ public class SiteSettingsDto {
 
     public void setYoutubeUrl(String youtubeUrl) {
         this.youtubeUrl = youtubeUrl;
+    }
+
+    public boolean isHomeShowCategoryRow() {
+        return homeShowCategoryRow;
+    }
+
+    public void setHomeShowCategoryRow(boolean homeShowCategoryRow) {
+        this.homeShowCategoryRow = homeShowCategoryRow;
+    }
+
+    public boolean isHomeShowSocialSection() {
+        return homeShowSocialSection;
+    }
+
+    public void setHomeShowSocialSection(boolean homeShowSocialSection) {
+        this.homeShowSocialSection = homeShowSocialSection;
+    }
+
+    public boolean isAdsEnabled() {
+        return adsEnabled;
+    }
+
+    public void setAdsEnabled(boolean adsEnabled) {
+        this.adsEnabled = adsEnabled;
+    }
+
+    public String getAdImageUrl() {
+        return adImageUrl;
+    }
+
+    public void setAdImageUrl(String adImageUrl) {
+        this.adImageUrl = adImageUrl;
+    }
+
+    public String getAdLinkUrl() {
+        return adLinkUrl;
+    }
+
+    public void setAdLinkUrl(String adLinkUrl) {
+        this.adLinkUrl = adLinkUrl;
+    }
+
+    public String getAdLabel() {
+        return adLabel;
+    }
+
+    public void setAdLabel(String adLabel) {
+        this.adLabel = adLabel;
     }
 }
